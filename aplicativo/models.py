@@ -16,3 +16,6 @@ class News(models.Model):
     pubDate = models.DateField()
     description = models.CharField(max_length=800, blank=True)
     content = models.CharField(max_length=1500, blank=False)
+
+class Dashboard(models.Model):
+    pass

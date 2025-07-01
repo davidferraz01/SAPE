@@ -1,23 +1,23 @@
 .red-btn {
-    background-color: #FF6B6B;
-    border-color: #FF6B6B;
+    background-color: #b13030;
+    border-color: #b13030;
     font-weight: bold;
     transition: background-color 0.4s ease;
   }
   
   .red-btn:hover {
-    background-color: #FF4F4F;
-    border-color: #FF4F4F;
+    background-color: #8c2828;
+    border-color: #8c2828;
   }
   
   .green-btn {
-    background-color: #3B7D66;
-    border-color: #3B7D66;
+    background-color: rgb(11, 11, 11);
+    border-color: rgb(11, 11, 11);
     font-weight: bold;
     transition: background-color 0.4s ease;
   }
 
 .green-btn:hover {
-    background-color: #285B5A;
-    border-color: #285B5A;
+    background-color: rgb(31, 30, 30);
+    border-color: rgb(31, 30, 30);
 }

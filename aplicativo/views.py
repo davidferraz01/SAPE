@@ -18,9 +18,9 @@ def home(request):
 @login_required
 def doar(request):
     if request.method == 'GET':
-        #campanhas = Campanha.objects.order_by('-id')  # Ordenando pela mais recente
+        noticias = News.objects.order_by('-id')  # Ordenando pela mais recente
 
-        #context = {'campanhas': campanhas}
+        context = {'noticias': noticias}
 
         return render(request, 'pages/doacao/doar.html')
     
@@ -29,7 +29,7 @@ def doar(request):
 def minhas_doacoes(request):
     if request.method == 'GET':
         # Filtrando as doacoes pelo usuario logado
-        doacao = Doacao.objects.filter(fk_usuario=request.user).order_by('-id')
+        doacao = Dashboard.objects.filter(fk_usuario=request.user).order_by('-id')
 
         context = {'doacao': doacao}
 
