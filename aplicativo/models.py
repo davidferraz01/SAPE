@@ -12,7 +12,7 @@ class Source(models.Model):
 # Noticias
 class News(models.Model):
     title = models.CharField(max_length=200, blank=False)
-    link = models.CharField(blank=False)
+    link = models.CharField(max_length=500, blank=False)
     pubDate = models.DateField()
-    description = models.CharField(blank=True)
-    content = models.CharField(blank=False)
+    description = models.CharField(max_length=800, blank=True)
+    content = models.CharField(max_length=1500, blank=False)

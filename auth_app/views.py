@@ -63,7 +63,7 @@ def cadastrar_usuario(request):
             tipo_usuario = data.get("tipo_usuario")
 
             # Verificar se o tipo é válido
-            if tipo_usuario not in [Usuario.DOADOR, Usuario.INSTITUICAO]:
+            if tipo_usuario not in [Usuario.ANALISTA, Usuario.SUPERVISOR]:
                 return JsonResponse({"status": 400, "message": "Tipo de usuário inválido."})
 
             # Verificar se já existe um usuário com o mesmo email
@@ -80,20 +80,18 @@ def cadastrar_usuario(request):
                 password=make_password(data["senha"])
             )
 
-            # Configuração específica para Doador
-            if tipo_usuario == Usuario.DOADOR:
-                usuario.cpf = data.get("cpf")
-                if Usuario.objects.filter(cpf=usuario.cpf).exists():
-                    return JsonResponse({"status": 400, "message": "CPF já cadastrado."})
+            # Configuração específica para Analista
+            if tipo_usuario == Usuario.ANALISTA:
+                usuario.email = data.get("email")
+                if Usuario.objects.filter(email=usuario.email).exists():
+                    return JsonResponse({"status": 400, "message": "E-mail já cadastrado."})
 
             # Configuração específica para Instituição
-            elif tipo_usuario == Usuario.INSTITUICAO:
-                usuario.cnpj = data.get("cnpj")
-                usuario.nome_responsavel = data.get("nome_responsavel")
-                usuario.cpf_responsavel = data.get("cpf_responsavel")
+            elif tipo_usuario == Usuario.SUPERVISOR:
+                usuario.cpf = data.get("cpf")
 
-                if Usuario.objects.filter(cnpj=usuario.cnpj).exists():
-                    return JsonResponse({"status": 400, "message": "CNPJ já cadastrado."})
+                if Usuario.objects.filter(cpf=usuario.cpf).exists():
+                    return JsonResponse({"status": 400, "message": "CPF já cadastrado."})
 
             # Salvar usuário no banco
             usuario.save()

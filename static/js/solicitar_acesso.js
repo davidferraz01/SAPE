@@ -23,14 +23,14 @@ function cadastrarDoador() {
 
     // Obtém os valores do formulário
     let nome = document.getElementById('nome').value.trim();
-    let cpf = document.getElementById('cpf').value.trim();
+    //let cpf = document.getElementById('cpf').value.trim();
     let email = document.getElementById('email').value.trim();
     let telefone = document.getElementById('telefone').value.trim();
     let senha = document.getElementById('senha').value;
     let confirmarSenha = document.getElementById('confirmar-senha').value;
 
     // Validação de campos obrigatórios
-    if (!nome || !cpf || !email || !telefone || !senha || !confirmarSenha) {
+    if (!nome || !email || !telefone || !senha || !confirmarSenha) {
         toastr.warning('Por favor, preencha todos os campos.');
         return;
     }
@@ -48,11 +48,10 @@ function cadastrarDoador() {
     // Estrutura os dados para envio
     let dados = {
         nome: nome,
-        cpf: cpf,
         email: email,
         telefone: telefone,
         senha: senha,
-        tipo_usuario: "doador"
+        tipo_usuario: "analista"
     };
 
     // Envia a requisição para a API de cadastro
@@ -96,17 +95,18 @@ function cadastrarInstituicao() {
     event.preventDefault();
 
     // Obtém os valores do formulário
-    let instituicao = document.getElementById('instituicao').value.trim();
-    let cnpj = document.getElementById('cnpj').value.trim();
-    let nome_responsavel = document.getElementById('nome_responsavel').value.trim();
-    let cpf_responsavel = document.getElementById('cpf_responsavel').value.trim();
+    let supervisor = document.getElementById('instituicao').value.trim();
+    //let cnpj = document.getElementById('cnpj').value.trim();
+    //let nome_responsavel = document.getElementById('nome_responsavel').value.trim();
+    //let cpf_responsavel = document.getElementById('cpf_responsavel').value.trim();
+    let cpf = document.getElementById('cpf').value.trim();
     let email = document.getElementById('email').value.trim();
     let telefone = document.getElementById('telefone').value.trim();
     let senha = document.getElementById('senha').value;
     let confirmarSenha = document.getElementById('confirmar-senha').value;
 
     // Validação de campos obrigatórios
-    if (!instituicao || !cnpj || !nome_responsavel || !cpf_responsavel || !email || !telefone || !senha || !confirmarSenha) {
+    if (!supervisor || !cpf || !email || !telefone || !senha || !confirmarSenha) {
         toastr.warning('Por favor, preencha todos os campos.');
         return;
     }
@@ -123,11 +123,9 @@ function cadastrarInstituicao() {
 
     // Estrutura os dados para envio
     let dados = {
-        tipo_usuario: "instituicao",
-        nome: instituicao,
-        cnpj: cnpj,
-        nome_responsavel: nome_responsavel,
-        cpf_responsavel: cpf_responsavel,
+        tipo_usuario: "supervisor",
+        nome: supervisor,
+        cpf: cpf,
         email: email,
         telefone: telefone,
         senha: senha

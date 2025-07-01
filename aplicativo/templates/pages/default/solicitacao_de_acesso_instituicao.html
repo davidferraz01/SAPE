@@ -51,7 +51,7 @@
 
       <form id="cadastro-form" action="http://127.0.0.1:8000/doar/" method="post">
         <div class="input-group mb-3">
-          <input id="instituicao" type="text" class="form-control" placeholder="Nome da Instituição">
+          <input id="instituicao" type="text" class="form-control" placeholder="Nome do Supervisor">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -59,6 +59,7 @@
           </div>
         </div>
 
+        <!--
         <div class="input-group mb-3">
           <input id="cnpj" type="text" class="form-control cnpj-mask" placeholder="CNPJ">
           <div class="input-group-append">
@@ -67,6 +68,7 @@
             </div>
           </div>
         </div>
+        
 
         <div class="input-group mb-3">
           <input id="nome_responsavel" type="text" class="form-control" placeholder="Nome do responsável">
@@ -79,6 +81,16 @@
 
         <div class="input-group mb-3">
           <input id="cpf_responsavel" type="text" class="form-control cpf-mask" placeholder="CPF do responsável">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        -->
+
+        <div class="input-group mb-3">
+          <input id="cpf" type="text" class="form-control cpf-mask" placeholder="CPF">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -128,7 +140,7 @@
         
         
         <a id="botao-cadastrar" onclick="cadastrarInstituicao()" class="btn green-btn btn-block btn-danger">
-           Cadastrar Instituição
+           Cadastrar Supervisor
         </a>
       </div>
       <!-- /.social-auth-links -->
@@ -142,7 +154,7 @@
 
         <div clas="col text-right" style="padding: 0px 10px;">
           <p>
-            <a href="/solicitacao_de_acesso/">Cadastrar Doador</a>
+            <a href="/solicitacao_de_acesso/">Cadastrar Analista</a>
           </p>
         </div>
       </div>

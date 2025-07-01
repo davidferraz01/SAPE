@@ -18,11 +18,11 @@ def home(request):
 @login_required
 def doar(request):
     if request.method == 'GET':
-        campanhas = Campanha.objects.order_by('-id')  # Ordenando pela mais recente
+        #campanhas = Campanha.objects.order_by('-id')  # Ordenando pela mais recente
 
-        context = {'campanhas': campanhas}
+        #context = {'campanhas': campanhas}
 
-        return render(request, 'pages/doacao/doar.html', context)
+        return render(request, 'pages/doacao/doar.html')
     
 
 @login_required

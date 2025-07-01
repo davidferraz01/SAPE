@@ -1,13 +1,13 @@
 from rolepermissions.roles import AbstractUserRole
 
-class DoadorRole(AbstractUserRole):
-    role_name = "doador"  # Define o nome correto da role
+class AnalistaRole(AbstractUserRole):
+    role_name = "analista"  # Define o nome correto da role
     available_permissions = {
-        'doador': True,
+        'analista': True,
     }
 
-class InstituicaoRole(AbstractUserRole):
-    role_name = "instituicao"  # Define o nome correto da role
+class SupervisorRole(AbstractUserRole):
+    role_name = "supervisor"  # Define o nome correto da role
     available_permissions = {
-        'instituicao': True,
+        'supervisor': True,
     }
