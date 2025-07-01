@@ -1,0 +1,62 @@
+/* Global Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0; 
+    font-family: 'Montserrat', sans-serif;
+}
+
+:root{
+    --cor-principal-700 : #F27673;
+    --cor-secundaria-roxa-700 : #2B7A66;
+    --cor-secundaria-roxa-500: #256958;
+    --cor-principal-cinza-700: #828282;
+    --cor-secundaria-cinza-500: #999999;
+}
+
+#title-form {
+    color: #00000080;
+}
+
+div#card-header{
+    background-color: #256958;
+    color: #FFFFFF;
+    font-size: 17.6px;
+}
+
+
+/* Botões */
+#botao-salvar {
+    background-color: #256958;
+    border: none;
+}
+
+#botao-salvar:hover{
+    background-color: #2B7A66; 
+}
+#botao-voltar {
+    background-color: #6c757d;
+    border: none;
+}
+
+#botao-voltar:hover{
+    background-color: #343a40cc; 
+}
+
+/* icones styles */
+
+.icone-branco{
+    fill:#fff;
+    margin-bottom: 3px;
+}
+
+/*             */
+
+.botao-campo-formulario {
+    padding: 2px 7px;
+    color: #fff;
+    font-weight: bold;
+    border-style: hidden;
+    border-radius: 5px;
+    background-color: #39a0e6;
+}

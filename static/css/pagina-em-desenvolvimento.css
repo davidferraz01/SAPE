@@ -1,0 +1,33 @@
+
+*{
+    margin: 0;
+    padding: 0;
+    font-family:  'League Spartan', sans-serif;
+}
+.pai-pagina{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+.pagina-em-desenvolvimento{
+    display: flex;
+    justify-content: space-between;
+    height: 80%;
+    width: 50%;
+    margin: auto;
+    align-items: center;
+}
+.logo{
+    font-size: 50px;
+    
+}
+.div-filho{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.div-filho h2{
+    color: #F27673;
+    font-size: 2rem;
+}

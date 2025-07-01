@@ -1,0 +1,15 @@
+:root{
+    --cor-principal-700 : #F27673;
+    --cor-secundaria-roxa-700 : #2B7A66;
+    --cor-secundaria-roxa-500: #256958
+    --cor-principal-cinza-700: #828282;
+    --cor-secundaria-cinza-500: #999999;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0; 
+    background-color: #F8F8FB;
+    background-color: #F8F8FB;
+    font-family: 'Montserrat', sans-serif;
+}

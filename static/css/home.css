@@ -1,0 +1,464 @@
+html {scroll-behavior: smooth;}
+
+/* Estilo padrão do botão */
+#botao-voltar {
+  background-color: #F27673;
+  border: none;
+}
+
+/* Estilo quando o cursor estiver sobre o botão */
+#botao-voltar:hover {
+  background-color: #e6732b;
+}
+
+h1 {
+  color: #F27673;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bolder;
+}
+
+p1 {
+  color: #2B7A66;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bolder;
+  font-size: 19px;
+}
+p2 {
+  color: #535553;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+}
+p3 {
+  color: #535553;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+}
+
+.image-content {
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.nav-link-custom {
+  font-size: 15px;
+}
+
+.border-right-custom {
+  border-right: 1px solid white; 
+  line-height: 0.5;
+}
+
+.border-left-custom {
+  border-right: 0px solid white; 
+  line-height: 0.5;
+}
+
+.title-custom {
+  font-size: 28px;
+  font-family: 'Shippori Mincho', serif;
+}
+
+.banner { 
+  background: url('../images/banner.jpg') no-repeat center center/cover;
+  height: 100vh; 
+  color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 0;
+}
+
+.banner-content {
+  max-width: 600px;
+}
+
+.red-btn {
+  background-color: #FF6B6B;
+  color: white;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-weight: bold;
+  transition: background-color 0.4s ease;
+}
+
+.red-btn:hover {
+  background-color: #FF4F4F;
+  color: white;
+}
+
+.green-btn {
+  background-color: #285B5A;
+  color: white;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-weight: bold;
+  transition: background-color 0.4s ease;
+}
+
+.green-btn:hover {
+  background-color: #1d4342;
+  color: white;
+}
+
+.title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: white
+}
+
+.subtitle {
+  font-family: 'Sue Ellen Francisco';
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.custom-container {
+  position: relative;
+}
+
+.circle {
+  width: 15px;
+  height: 15px;
+  background: white;
+  border-radius: 50%;
+}
+
+.line {
+  flex-grow: 0.5;
+  height: 1px;
+  background: white;
+  margin: 0 0px;
+}
+
+.btn-doe-com-coracao {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 800;
+  backdrop-filter: blur(5px);
+}
+
+.black-card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2E4049;
+}
+
+.white-card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+}
+
+.black-card-text {
+  font-family: 'Work Sans', sans-serif;
+  color: #2E4049;
+  font-size: 1.1rem;
+}
+
+.white-card-text {
+  font-family: 'Work Sans', sans-serif;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.cards-section {
+  position: relative;
+  z-index: 1; /* Garante que os cards fiquem acima */
+}
+
+.card-custom {
+  border: none;
+  border-radius: 0;
+}
+
+.yellow-card {
+  background-color: #E9C67C;
+  transition: background-color 0.4s ease; /* Suaviza a transição */
+}
+
+.yellow-card:hover {
+  background: #D0B162; /* Cor mais escura */  
+}
+
+.green-card {
+  background-color: #3B7D66;
+  color: rgb(0, 0, 0);
+  transition: background-color 0.4s ease; /* Suaviza a transição */
+}
+
+.green-card:hover {
+  background: #2E5E4F; /* Cor mais escura */
+}
+
+.red-card {
+  background-color: #F27673;
+  color: white;
+  transition: background-color 0.4s ease; /* Suaviza a transição */
+}
+
+.red-card:hover {
+  background: #D95A57; /* Cor mais escura */
+}
+
+.mt-n5-custom {
+  margin-top: -5%; /* Ajuste para sobrepor */
+}
+
+.call-carousel-text{
+  color: #2c6b57;
+  font-weight: bold;
+  font-family: 'Sue Ellen Francisco';
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.carousel-text {
+  font-family: 'Work Sans', sans-serif;
+  color: #2E4049;
+  font-size: 0.9rem;
+}
+
+.highlight-text {
+  color: #d9534f;
+  font-weight: bold;
+  font-family: 'Sue Ellen Francisco';
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.subtitle-hero {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 2.0rem;
+  color: #2E4049;
+}
+
+.hero-text {
+  font-family: 'Work Sans', sans-serif;
+  color: #727272;
+  font-size: 1.1rem;
+}
+
+.btn-custom {
+  background-color: #2c6b57;
+  color: white;
+  border-radius: 25px;
+  padding: 10px 20px;
+}
+.btn-custom:hover {
+  background-color: #245245;
+  color: white;
+}
+.feature-box {
+  background-color: #ECF1F0;
+  padding: 20px;
+  border-radius: 10px;
+}
+.feature-box ul {
+  list-style: none;
+  padding: 0;
+}
+.feature-box ul li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.feature-box ul li::before {
+  content: "✔";
+  color: #d9534f;
+  font-weight: bold;
+  margin-right: 10px;
+}
+.divider {
+  border-top: 2.5px solid #F4CE7E;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.carousel-img {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.cadastrese-img { 
+  background: url('../images/background-cadastrese-home.png') no-repeat center center/cover;
+  height: 100vh; 
+  color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 0;
+}
+
+.call-cadastrese-text{
+  color: white;
+  font-weight: bold;
+  font-family: 'Sue Ellen Francisco';
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.subtitle-cadastrese {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 2.0rem;
+  color: white;
+}
+
+.form-title {
+  color: #F4CE7E;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.8rem;
+}
+
+.cadastrese-text {
+  font-family: 'Work Sans', sans-serif;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.cadastrese-title-details {
+  font-family: 'Shippori Mincho', serif;
+  color: white;
+
+}
+
+.cadastrese-text-details {
+  font-family: 'Work Sans', sans-serif;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.yellow-btn {
+  background-color: #F4CE7E;
+  color: black;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-weight: bold;
+  transition: background-color 0.4s ease;
+}
+
+.yellow-btn:hover {
+  background-color: #a88e55;
+  color: white;
+}
+
+.text-content {
+  max-width: 50%;
+}
+
+.form-padding{
+  padding: 48px 70px;
+}
+
+.form-container {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #F4CE7E;
+  border-radius: 0px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-width: 40%;
+}
+
+.form-group {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.form-control {
+  background: transparent;
+  width: 100%;
+  padding: 1px 80px;
+  padding-left: 3%;
+  border: 1px solid white;
+  border-radius: 0px;
+  outline: none;
+}
+
+@media (max-width: 992px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .text-content, .form-container {
+    max-width: 100%;
+  }
+
+  .text-content {
+    margin-bottom: 40px;
+  }
+}
+
+
+.footer-container h4, .footer-container h5 {
+  color: #ecf0f1;
+}
+
+.footer-container p, .footer-container a {
+  color: #bdc3c7;
+}
+
+.footer-container a.text-danger {
+  color: #e74c3c;
+}
+
+.footer-container .text-center {
+  margin-top: 20px;
+}
+
+.footer-container .fab {
+  font-size: 1.5rem;
+}
+
+.links-uteis-container {
+  background-color: #384C56;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.footer-title {
+  color: white;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.2rem;
+}
+
+.footer-text {
+  color: white;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.0rem;
+}
+
+.footer-links {
+  color: white;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.0rem;
+}
+
+.footer-links:hover {
+  color: #4e7d95;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 15px;
+  transition: background-color 0.3s ease;
+  
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: auto;
+}

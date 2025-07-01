@@ -1,0 +1,733 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAPE</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/visualizar_campanha.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/cadastrar_campanha.css' %}">
+
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- Bootstrap Color Picker -->
+  <link rel="stylesheet" href="{% static 'plugins/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+
+  <!-- toastr -->
+  <link href="{% static 'plugins/toastr/toastr.min.css' %}" rel="stylesheet"/>
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
+  <link rel="icon" href="{% static  'images/sape-icon.png' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+
+  <!-- Select2 -->
+  <link rel="stylesheet" href="../../plugins/select2/css/select2.min.css">
+  <link rel="stylesheet" href="../../plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+
+  
+</head>
+
+<body class="hold-transition">
+
+<div class="wrapper">
+
+  <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{% static  'images/sape-icon.png' %}" alt="SAPE-logo" height="60px" width="60px">
+  </div>
+  
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="/minhas_campanhas/" class="nav-link">Inicio</a>
+      </li>
+    </ul>
+
+    <!-- center navbar links -->
+    <ul class="navbar-nav mx-auto justify-content-center">
+      <!-- preview -->
+      <button id="view-form" class="toggle-preview active" onclick="toggleView('form')">Formulário</button>
+      <button id="view-responses" class="toggle-preview" onclick="toggleView('responses'), visualizarCadastro()">Visualização</button>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- fullscreen -->
+      <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </a>
+      </li>
+    </ul> 
+
+
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  {% include 'partials/menu_lateral.html' %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+
+    <!-- Main content -->
+    <section class="content" onkeyup="atualizacao_em_tempo_real()">
+      <div class="container-fluid">
+        <div class="row" id="first-row">
+          <section class="content-header">
+            <h1 id="title-form">Formulário de Campanha</h1>
+          </section>
+
+          <div class="row">
+
+          <div class="col-md-6">
+              <!-- left column -->
+
+           <!-- general form elements -->
+           <div class="card card-primary">
+             <div class="card-header" id="enterprise">
+               <h3 class="card-title" >Campanha</h3>
+             </div>
+             <!-- /.card-header -->
+             <div class="card-body">
+               <div class="form-group">
+                 <label for="exampleInputEmail1">Título da campanha</label>
+                 <input type="text" class="form-control" id="titulo-campanha" placeholder="Título da campanha">
+                 <div class="invalid-feedback">
+                   Por favor, preencha este campo.
+                 </div>
+               </div>
+
+               <div class="form-group">
+                <label for="exampleInputEmail1">Objetivo</label>
+                <textarea class="form-control" rows="3" placeholder="Digite ..." id="objetivo"></textarea>
+              </div>
+
+              <div class="flex-container row">
+
+              <div class="form-group col" style="min-width: 131px;">
+                <label for="exampleInputEmail1">CEP</label>
+                <input type="text" class="form-control" id="cep"  placeholder="00000-000">
+                <div class="invalid-feedback">
+                  Por favor, preencha este campo.
+                </div>
+              </div>
+
+              <div class="form-group col" style="max-width: 90px;">
+                <label>Estado</label>
+                <select class="form-control" id="estado">
+                  <option value="AC">AC</option>
+                  <option value="AL">AL</option>
+                  <option value="AP">AP</option>
+                  <option value="AM">AM</option>
+                  <option value="BA">BA</option>
+                  <option value="CE">CE</option>
+                  <option value="DF">DF</option>
+                  <option value="ES">ES</option>
+                  <option value="GO">GO</option>
+                  <option value="MA">MA</option>
+                  <option value="MT">MT</option>
+                  <option value="MS">MS</option>
+                  <option value="MG">MG</option>
+                  <option value="PA">PA</option>
+                  <option value="PB">PB</option>
+                  <option value="PR">PR</option>
+                  <option value="PE">PE</option>
+                  <option value="PI">PI</option>
+                  <option value="RJ">RJ</option>
+                  <option value="RN">RN</option>
+                  <option value="RS">RS</option>
+                  <option value="RO">RO</option>
+                  <option value="RR">RR</option>
+                  <option value="SC">SC</option>
+                  <option value="SP">SP</option>
+                  <option value="SE">SE</option>
+                  <option value="TO">TO</option>
+                </select>
+                
+              </div>
+              <div class="invalid-feedback">
+                Por favor, preencha este campo.
+              </div>
+              
+              <div class="form-group col">
+                <label for="exampleInputEmail1">Cidade</label>
+                <input type="text" class="form-control" id="cidade"  placeholder="Cidade">
+                <div class="invalid-feedback">
+                  Por favor, preencha este campo.
+                </div>
+              </div>
+              
+            </div>
+
+            <div class="form-group">
+              <label for="exampleInputEmail1">Logradouro</label>
+              <input type="text" class="form-control" id="logradouro"  placeholder="Rua, Avenida, Travessa">
+              <div class="invalid-feedback">
+                Por favor, preencha este campo.
+              </div>
+            </div>
+
+            <div class="flex-container row">
+              
+              <div class="form-group col">
+                <label for="exampleInputEmail1">Bairro</label>
+                <input type="text" class="form-control" id="bairro"  placeholder="Bairro">
+                <div class="invalid-feedback">
+                  Por favor, preencha este campo.
+                </div> 
+              </div>
+              
+              <div class="form-group col" style="margin-right: 10px; width: 50%;">
+                <label for="exampleInputEmail1">Número</label>
+                <input type="text" class="form-control" id="numero"  placeholder="0">
+                <div class="invalid-feedback">
+                  Por favor, preencha este campo.
+                </div>
+              </div>  
+
+            </div>
+
+
+            <div class="form-group" style="width: 100%;">
+              <label for="exampleInputEmail1">Complemento</label>
+              <textarea class="form-control" rows="3" placeholder="Digite ..." id="complemento"></textarea>
+            </div>
+              
+              <div class="form-group">
+                <label>Categorias</label>
+                <div class="select2-purple">
+                  <select class="select2" multiple="multiple" data-placeholder="Selecione uma categoria" data-dropdown-css-class="select2-purple" style="width: 100%;" id="select_categoria" onchange="testessssss()">
+                    <option>Ajuda a vítimas de desastres naturais</option>
+                    <option>Apoio a refugiados e deslocados</option>
+                    <option>Emergências sanitárias</option>
+                    <option>Compra de medicamentos</option>
+                    <option>Tratamento médico e cirurgias</option>
+                    <option>Apoio a hospitais e clínicas comunitárias</option>
+                    <option>Doação de sangue e medula óssea</option>
+                    <option>Cestas básicas</option>
+                    <option>Refeições prontas para distribuição</option>
+                    <option>Apoio a bancos de alimentos</option>
+                    <option>Material didático e livros</option>
+                    <option>Bolsas de estudo e cursos gratuitos</option>
+                    <option>Apoio a creches e escolas comunitárias</option>
+                    <option>Construção e reforma de casas</option>
+                    <option>Energia elétrica e água potável</option>
+                    <option>Móveis e utensílios para famílias carentes</option>
+                    <option>Roupas, calçados e cobertores</option>
+                    <option>Kits de higiene pessoal (sabonete, shampoo, pasta de dente)</option>
+                    <option>Fraldas e absorventes para mulheres em situação de vulnerabilidade</option>
+                    <option>Alimentação e cuidados veterinários</option>
+                    <option>Resgate e abrigo de animais em situação de rua</option>
+                    <option>Campanhas de castração e adoção</option>
+                    <option>Idosos e pessoas com deficiência</option>
+                    <option>Comunidades indígenas e quilombolas</option>
+                    <option>Incentivo a atividades culturais e artísticas</option>
+                    <option>Doação de materiais esportivos</option>
+                    <option>Apoio a projetos sociais</option>
+                    <option>População em situação de rua</option>
+                  </select>
+                </div>
+              </div>
+
+             
+                 
+               
+             </div>
+             <!-- /.card-body -->
+           </div>
+           <!-- /.card -->
+
+         </div>
+         <!-- left column -->
+
+          <!-- right column -->
+          <div class="col-md-6">
+            
+            <!-- general form elements -->
+            <div class="card card-primary ">
+              
+              <div class="card-header" id="pre-viability">
+                <h3 class="card-title">Metas</h3>
+              </div>
+              <!-- form start -->
+              <form>
+                <div class="card-body">
+
+                  <div class="form-group">
+                    <label for="exampleInputFile">Imagem da campanha</label>
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="imagem_campanha" accept="image/*">
+                        <label class="custom-file-label" for="exampleInputFile">Escolha uma imagem...</label>
+                      </div>
+                    </div>
+                    <div id="file-feedback" class="invalid-feedback">
+                      Por favor, selecione uma imagem.
+                    </div>
+                  </div>
+
+                  
+                  <div class="row">
+                  
+                    <div class="form-group col">
+                    <label for="exampleInputEmail1">Meta de arrecadação</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">R$</span>
+                      </div>
+                      <input type="text" class="form-control money-mask" id="meta_de_arrecadacao"> 
+                      <div class="invalid-feedback">
+                        Por favor, preencha este campo.
+                      </div>
+                    </div>
+                   </div>
+
+
+                      <div class="form-group col">
+                        <label for="exampleInputEmail1">Valor arrecadado</label>
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">R$</span>
+                          </div>
+                          <input type="text" class="form-control money-mask" id="valor_arrecadado"> 
+                          <div class="invalid-feedback">
+                            Por favor, preencha este campo.
+                          </div>
+                        </div>
+                      </div>
+                  
+                  </div>
+
+                  <div class="row"> 
+
+                    <div class="form-group col">
+                      <label for="exampleInputEmail1">Data de início </label>
+                      <div class="input-group">
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                          <input type="date" class="form-control"  id="inicio-campanha"> 
+                          <div class="invalid-feedback">
+                            Por favor, preencha este campo.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group col">
+                      <label for="exampleInputEmail1">Data de Término </label>
+                      <div class="input-group">
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                          <input type="date" class="form-control"  id="fim-campanha"> 
+                          <div class="invalid-feedback">
+                            Por favor, preencha este campo.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+
+                </div>
+                <!-- /.card-body -->
+                
+              </form>
+
+            </div>
+            <!-- /.card -->
+            <!-- general form elements -->
+            
+            <div class="card card-primary ">
+              
+              <div class="card-header" id="pre-viability">
+                <h3 class="card-title">Contatos</h3>
+              </div>
+
+              <form>
+                <div class="card-body">
+  
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Número de telefone</label>
+                    <input type="text" class="form-control phone-mask" id="telefone" placeholder="Número de telefone">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">E-mail</label>
+                    <input type="text" class="form-control" id="email" placeholder="E-mail">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Instagram</label>
+                    <input type="text" class="form-control" id="instagram" placeholder="Instagram">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Facebook</label>
+                    <input type="text" class="form-control" id="facebook" placeholder="Facebook">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">X (Twitter)</label>
+                    <input type="text" class="form-control" id="twitter" placeholder="X (Twitter)">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Chave Pix</label>
+                    <input type="text" class="form-control" id="chave-pix" placeholder="Chave Pix">
+                    <div class="invalid-feedback">
+                      Por favor, preencha este campo.
+                    </div>
+                  </div>
+                  
+                </div>
+                <!-- /.card-body -->
+
+              </form>
+
+            </div>
+
+          </div>
+          <!-- /.right column -->
+
+          </div>
+          <!-- /.row -->
+        </div>
+        <!-- /.row first -->
+
+        <div class="row" id="second-row" style="display: none;">
+
+            <section class="content-header">
+                  <h1 id="preview">Pré-visualização</h1>
+            </section>
+
+            <section class="content">
+              <div class="container-fluid" id="div-campanha">
+
+                  <div id="visual-img-container">
+                    <img id="visual-imagem" src="#" alt="Imagem selecionada" style="display: none;">
+                  </div>
+            
+                <div class="row tabela">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title" id="visual-titulo"></h3>
+                            </div>
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>Meta de Arrecadação</th>
+                                            <th>Valor Arrecadado</th>
+                                            <th>Chave Pix</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="white-space: pre-wrap;" id="visual-descricao"></td>
+                                            <td id="visual-meta-de-arrecadacao"></td>
+                                            <td id="visual-valor-arrecadado"></td>
+                                            <td id="visual-pix"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row tabela">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Período da Campanha</h3>
+                            </div>
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>Data de Início</th>
+                                            <th>Data de Término</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="visual-data-inicio"></td>
+                                            <td id="visual-data-termino"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row tabela">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Contato</h3>
+                            </div>
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>Telefone</th>
+                                            <th>Email</th>
+                                            <th>Instagram</th>
+                                            <th>Facebook</th>
+                                            <th>Twitter</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="visual-telefone"></td>
+                                            <td id="visual-email"></td>
+                                            <td id="visual-instagram"></td>
+                                            <td id="visual-facebook"></td>
+                                            <td id="visual-twitter"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row tabela">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Endereço</h3>
+                            </div>
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover text-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th>CEP</th>
+                                            <th>Estado</th>
+                                            <th>Cidade</th>
+                                            <th>Bairro</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="visual-cep"></td>
+                                            <td id="visual-estado"></td>
+                                            <td id="visual-cidade"></td>
+                                            <td id="visual-bairro"></td>
+                                        </tr>
+                                    </tbody>
+            
+                                    <thead>
+                                        <tr>
+                                            <th>Logradouro</th>
+                                            <th>Número</th>
+                                            <th>Complemento</th>
+                                            <th>Categorias</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="visual-logradouro"></td>
+                                            <td id="visual-numero"></td>
+                                            <td id="visual-complemento"></td>
+                                            <td id="visual-categorias"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+             </div>
+              <!-- /. container-fluid -->
+        
+              <!-- /. container-fluid -->
+            </section>
+            <!-- /.content -->
+          
+        </div>
+        <!-- /.row -->
+
+        <div class="card-footer button-container">
+          <div class="row">
+            
+            <div class="col-sm-12 col-md-auto">
+              <a href="/minhas_campanhas/"><button id="botao-voltar" type="submit" class="btn btn-info"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>&nbsp;&nbsp;Voltar</button></a>
+            </div>
+            
+            <div class="col-sm-12 col-md">
+              <button id="botao-salvar" type="submit" class="btn btn-info float-right" onclick="cadastrarCampanha()"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32H64zm0 96c0-17.7 14.3-32 32-32H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>&nbsp;&nbsp;Salvar</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  {% include 'footer_version.html' %}
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+
+<!-- ChartJS -->
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+<!-- Sparkline -->
+<script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+<!-- JQVMap -->
+<script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+<!-- jQuery Knob Chart -->
+<script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+<!-- daterangepicker -->
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static '/dist/js/adminlte.js' %}"></script>
+<script src="{% static 'plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js' %}"></script>
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- Select2 -->
+<script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
+<!-- bs-custom-file-input -->
+<script src="{% static 'plugins/bs-custom-file-input/bs-custom-file-input.min.js' %}"></script>
+<!-- Cleave -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js" integrity="sha512-KaIyHb30iXTXfGyI9cyKFUIRSSuekJt6/vqXtyQKhQP6ozZEGY8nOtRS6fExqE4+RbYHus2yGyYg1BrqxzV6YA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<!-- Importar o JavaScript do Select2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<!-- Scritp CEP -->
+<script src="{% static 'js/api_cep.js' %}"></script>
+
+<!-- Menu Lateral -->
+<script src="{% static 'js/menu_lateral.js' %}"></script>
+<script>
+  active_menu_minhas_campanhas();
+</script>
+<!-- Toastr -->
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- Page specific script -->
+<script>
+$(function () {
+  bsCustomFileInput.init();
+});
+</script>
+<script src=" {% static 'plugins/moment/moment.min.js' %}"></script>
+<!-- import de mascara para os input de R$-->
+<script src=" {% static 'plugins/inputmask/jquery.inputmask.min.js' %}"></script>
+<!-- script principal da pagina-->
+<script src="{% static '/js/cadastrar_campanha.js' %}"> </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+<script> 
+  $(function () {
+    //Initialize Select2 Elements
+    $('.select2').select2()
+
+    //Initialize Select2 Elements
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+  })
+</script>
+
+<!-- import biblioteca jQuery UI -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script>
+function toggleView(view) {
+  var viewResponsesButton = document.getElementById("view-responses");
+  var viewFormButton = document.getElementById("view-form");
+  var firstRow = document.getElementById("first-row");
+  var secondRow = document.getElementById("second-row");
+
+  if (view === "responses") {
+    viewResponsesButton.classList.add("active");
+    viewFormButton.classList.remove("active");
+    firstRow.style.display = "none";
+    secondRow.style.display = "block";
+  } else if (view === "form") {
+    viewResponsesButton.classList.remove("active");
+    viewFormButton.classList.add("active");
+    firstRow.style.display = "block";
+    secondRow.style.display = "none";
+  } 
+}
+
+// Inicialmente, mostrar a visualização do formulário
+toggleView("form");
+
+</script>
+
+</body>
+</html>

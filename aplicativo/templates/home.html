@@ -1,0 +1,468 @@
+{% load static %}
+{% load permission_tags %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAPE</title>
+  
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Sue Ellen Francisco Font -->
+  <link href='https://fonts.googleapis.com/css?family=Sue Ellen Francisco' rel='stylesheet'>
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}">
+  <!-- toastr -->
+  <link href="{% static 'plugins/toastr/toastr.min.css' %}" rel="stylesheet"/>
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
+  <link rel="icon" href="{% static  'images/sape-icon.png' %}">
+
+  <!--Work sans Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+</head>
+
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{% static 'images/sape-icon.png' %}" alt="sape-icon" height="60px" width="60px">
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg" style="background-color: #f57373; padding: 0;">
+    <div class="container-fluid d-flex justify-content-between">
+      <a class="navbar-brand text-white d-flex align-items-center title-custom ml-3" href="#">
+            <img src="{% static 'images/sape-icon.png' %}" alt="sape-icon" width="40" height="40" class="d-inline-block align-center mr-2">
+            SAPE
+      </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active"><a class="nav-link text-white nav-link-custom border-right-custom" href="/doar/">Início</a></li>
+                <li class="nav-item"><a class="nav-link text-white nav-link-custom border-right-custom" href="#sobrenos">Sobre Nós</a></li>
+                <li class="nav-item"><a class="nav-link text-white nav-link-custom border-right-custom" href="#campanhas">Campanhas</a></li>
+                <li class="nav-item"><a class="nav-link text-white nav-link-custom border-left-custom" href="#footer-contato">Contate-nos</a></li>
+            </ul>
+        </div>
+
+        <div class="d-none d-lg-block mr-4" style="background-color: #285B5A; padding: 20px 20px">
+            <a href="https://www.instagram.com/" class="text-white mr-3"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/?locale=pt_BR" class="text-white mr-3"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://x.com/" class="text-white mr-3"><i class="fab fa-twitter"></i></a>
+            <a href="https://br.pinterest.com/" class="text-white"><i class="fab fa-pinterest"></i></a>
+        </div>
+    </div>
+  </nav>
+
+
+  <!-- Banner -->
+  <div class="banner">
+    <div class="container">
+        <div class="banner-content">
+          
+            <p class="subtitle">Precisamos de Ajuda...</p>
+            <h1 class="title">Seja um Salva-Vidas Para Alguém</h1>
+
+            <div class="d-flex align-items-center custom-container">
+              <div class="circle"></div>
+              <div class="line"></div>
+              <span class="badge badge-pill badge-light btn-doe-com-coracao">DOE COM O CORAÇÃO</span>
+            </div>
+
+            <div class="mt-4">
+                <a href="/doar/" class="btn red-btn mr-3">DOAR</a>
+                <a href="/login/" class="btn green-btn">FAZER LOGIN</a>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+
+<!--Cards -->
+  <div class="container-fluid cards-section mt-n5-custom">
+    <div class="row no-gutters justify-content-center">
+        <div class="col-md-2 d-flex">
+            <div class="card card-custom yellow-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="black-card-title">Seja um <br> doador</h5>
+                    <p class="black-card-text mt-3">A fome é uma realidade que muitas pessoas enfrentam, e juntas, podemos fazer a diferença.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 d-flex">
+            <div class="card card-custom green-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="white-card-title">Compartilhe Solidariedade</h5>
+                    <p class="white-card-text mt-3">Roupas, alimentos, móveis ou tempo. Tudo o que você puder doar faz a diferença na vida de alguém.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 d-flex">
+            <div class="card card-custom red-card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="white-card-title">Seja um voluntário</h5>
+                    <p class="white-card-text mt-3">Milhares de pessoas precisam de ajuda todos os dias. Sua doação pode transformar vidas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+  <!-- Hero section -->
+  <div id="sobrenos" class="container">
+  <div class="row">
+      <div class="col-md-6">
+          <h6 class="highlight-text mt-5">Sobre o SAPE</h6>
+          <h2 class="subtitle-hero">Seu Parceiro na Transformação de Vidas</h2>
+          <p class="hero-text">
+              O SAPE é uma plataforma inovadora criada para facilitar e conectar doadores e pessoas ou instituições que precisam de apoio. 
+              Sabemos que a solidariedade é fundamental para construir um mundo melhor, e o SAPE está aqui para tornar esse processo mais simples, acessível e uma parte natural da sua rotina.
+          </p>
+          <p class="hero-text">
+              Com o SAPE, você tem ao seu alcance ferramentas poderosas que ajudam a realizar e gerenciar doações de maneira prática e intuitiva. 
+              Desde o cadastro de itens para doação até a busca por necessidades específicas de comunidades ou indivíduos, o SAPE foi desenvolvido para ser um verdadeiro aliado na sua jornada de impacto social.
+          </p>
+          <p class="hero-text">Juntos, podemos criar uma rede de generosidade e transformar vidas!</p>
+          <a href="#" class="btn red-btn mr-3">SAIBA MAIS</a>
+      </div>
+
+      <div class="col-md-6 d-flex justify-content-center align-items-stretch" style="padding: 180px 90px;">
+        <div class="feature-box card-body d-flex flex-column h-100 w-100 mt-5 text-center justify-content-center align-items-center">
+            <ul class="list-unstyled">
+                <li>Cadastro de Doações</li>
+                <li>Busca e Solicitação de Doações</li>
+                <li>Relatórios e Impacto Social</li>
+            </ul>
+            <h5 class="font-weight-bold mt-3">Além de Muitas Outras Funcionalidades</h5>
+            <div class="divider"></div>
+            <a href="/solicitacao_de_acesso/" class="btn green-btn mt-3">CADASTRE-SE AGORA</a>
+        </div>
+      </div>
+    
+  </div>
+  </div>
+
+
+    <!-- Carrossel -->
+    <div id="campanhas" class="container mt-5 feature-box">
+    <h6 class="call-carousel-text">Nossas Campanhas</h6>
+    <h2 class="subtitle-hero">Você pode ajudar muitas pessoas doando pouco</h2>
+
+    <div class="text-right mb-4">
+        <a href="#" class="btn red-btn">MAIS CAMPANHAS</a>
+    </div>
+
+    <div id="carousel-campanhas" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+
+            <!-- Primeiro Slide -->
+            <div class="carousel-item active">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-1.png' %}" class="card-img-top carousel-img" alt="Doação de roupas">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Durante o inverno, a campanha "Roupas que Aquecem" arrecada casacos, cobertores e acessórios para proteger famílias contra o frio intenso.<br>
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-2.png' %}" class="card-img-top carousel-img" alt="Ajuda humanitária">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Essa campanha tem ajudado famílias a reconstruir suas vidas após tragédias como enchentes ou incêndios.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-3.png' %}" class="card-img-top carousel-img" alt="Doação de alimentos">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Essa campanha tem transformado a vida de milhares de famílias ao garantir alimentos para quem mais precisa.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-4.png' %}" class="card-img-top carousel-img" alt="Voluntariado">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Igrejas locais têm arrecadado alimentos e montado cestas básicas para famílias carentes.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segundo Slide -->
+            <div class="carousel-item">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-5.jpeg' %}" class="card-img-top carousel-img" alt="Voluntariado">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Nossa campanha entrega materiais escolares para crianças, proporcionando oportunidades e construindo um futuro melhor.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-6.jpeg' %}" class="card-img-top carousel-img" alt="Voluntariado">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Nossa campanha arrecada alimentos para garantir que famílias em situação de vulnerabilidade tenham o essencial em sua mesa.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-7.jpeg' %}" class="card-img-top carousel-img" alt="Voluntariado">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Nossa campanha arrecada roupas, cobertores e acessórios para aquecer aqueles que mais precisam.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card h-100 d-flex flex-column">
+                            <img src="{% static 'images/carousel-8.jpeg' %}" class="card-img-top carousel-img" alt="Voluntariado">
+                            <div class="card-body d-flex flex-column">
+                                <p class="carousel-text flex-grow-1">
+                                    Com o esforço de voluntários e doações, conseguimos levar sustento e dignidade para quem mais precisa.
+                                </p>
+                                <div class="text-center">
+                                    <a href="#" class="btn green-btn mt-3">SABER MAIS</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles do carrossel abaixo do mesmo -->
+        <div class="d-flex justify-content-center mt-3">
+            <a class="carousel-control-prev position-static mx-2" href="#carousel-campanhas" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next position-static mx-2" href="#carousel-campanhas" role="button" data-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="sr-only">Próximo</span>
+            </a>
+        </div>
+    </div>
+    </div>
+
+
+
+  <!-- Cadastre-se -->
+<div class="cadastrese-img mt-5" id="cadastro">
+    <div class="container d-flex align-items-center justify-content-between">
+  
+      <!-- Texto à Esquerda -->
+      <div class="text-content">
+        <h4 class="call-cadastrese-text">Como ajudar nas</h4>
+        <h2 class="subtitle-cadastrese">Campanhas</h2>
+        <p class="cadastrese-text">
+          O ato de doar é um gesto de amor que pode transformar vidas. Assim como o cuidado consigo mesmo é essencial, cuidar do próximo é um ato de solidariedade que traz impacto positivo para toda a comunidade. Cada pequena contribuição pode significar muito para quem mais precisa, e começar a ajudar agora pode fazer toda a diferença na vida de alguém. Seja parte dessa mudança com o SAPE.
+        </p>
+        <a href="#" class="btn red-btn mt-3">MAIS INFORMAÇÕES</a>
+      </div>
+  
+      <!-- Formulário à Direita -->
+      <div class="form-container form-padding">
+        <h3 class="form-title">Tipos de Cadastros</h3>
+            <h6 class="cadastrese-title-details mt-4">Para Instituições Beneficiadas:</h6>
+            <p class="cadastrese-text-details">
+              Cadastre sua instituição e publique campanhas para receber doações de forma fácil e organizada. Acompanhe as contribuições em tempo real, atualize metas e amplie o alcance das suas ações solidárias com mais transparência.
+            </p>
+
+            <h6 class="cadastrese-title-details">Para Doadores:</h6>
+            <p class="cadastrese-text-details">
+              Ajude quem precisa de forma simples! Cadastre-se, escolha uma campanha, registre sua doação e acompanhe o impacto gerado. Sua contribuição pode transformar vidas!
+            </p>
+      </div>
+    </div>
+  </div>  
+
+
+
+
+  <!-- Final da pagina -->
+  <footer id="footer-contato" class="text-white py-5" style="background-color: #2E4049;">
+    <div class="container ">
+      <div class="row">
+        <!-- Seção principal -->
+        <div class="col-md-4 text-center mb-4 mb-md-0">
+          <h4 class="footer-title">SAPE</h4>
+          <p class="footer-text">Cuidamos de pessoas para transformar vidas, espalhando sempre uma mensagem positiva.</p>
+          <div class="d-flex justify-content-center mt-3">
+            <a href="https://www.instagram.com/" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/?locale=pt_BR" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://x.com/" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+            <a href="https://br.pinterest.com/" class="text-white mx-2"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
+  
+        <!-- Links úteis e Contato -->
+        <div class="col-md-8 mb-4 mb-md-0">
+          <div class="links-uteis-container">
+            <div class="row">
+              <div class="col-4">
+                <h5 class="footer-title">Envolva-se</h5>
+                <ul class="list-unstyled">
+                  <li><a href="#" class="footer-links">Sobre Nós</a></li>
+                  <li><a href="#" class="footer-links">Voluntariado</a></li>
+                  <li><a href="#" class="footer-links">Campanhas</a></li>
+                  <li><a href="#" class="footer-links">Projetos</a></li>
+                  <li><a href="#" class="footer-links">Equipe</a></li>
+                </ul>
+              </div>
+              <div class="col-4">
+                <h5 class="footer-title">Utilitário</h5>
+                <ul class="list-unstyled">
+                  <li><a href="#" class="footer-links">Guia de estilo</a></li>
+                  <li><a href="#" class="footer-links">Licenças</a></li>
+                  <li><a href="#" class="footer-links">Senha</a></li>
+                  <li><a href="#" class="footer-links">404 Página</a></li>
+                </ul>
+              </div>
+
+              <div class="col-4">
+                <h5 class="footer-title">Contato</h5>
+                <ul class="list-unstyled">
+                  <li><a href="https://maps.app.goo.gl/s3rKDGmcNHthsLfR9" class="footer-links">Universidade Federal de Sergipe. Rosa Elze, São Cristóvão - SE, 49100-000</a></li>
+                  <li><a href="mailto:sape@gmail.com" class="footer-links">sape@gmail.com</a></li>
+                </ul>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </footer>
+
+  <!-- /version do sistema -->
+  {% include 'footer_version.html' %}
+
+  <!-- Control Sidebar --
+  <aside class="control-sidebar control-sidebar-dark">
+    -- Control sidebar content goes here --
+  </aside>
+   -- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- ChartJS -->
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+<!-- Sparkline -->
+<script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+<!-- JQVMap -->
+<script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+<!-- jQuery Knob Chart -->
+<script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+<!-- daterangepicker -->
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static '/dist/js/adminlte.js' %}"></script>
+<!-- Toastr -->
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- Menu Lateral -->
+<script src="{% static 'js/menu_lateral.js' %}"></script>
+
+</body>
+</html>

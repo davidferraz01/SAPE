@@ -1,0 +1,120 @@
+{% load static %}
+{% csrf_token %}
+
+<style>
+  div#logout{
+    cursor: pointer;
+    width: min-content;
+    float: right;
+    justify-content: center;
+    text-align: center;
+  }
+</style>
+
+<aside id="sidebar" class="main-sidebar sidebar-light-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="/home/" class="brand-link">
+      <img src="{% static  'images/sape-icon.png' %}" alt="SAPE-logo" class="brand-image " >
+      <span class="brand-text font-weight-dark">SAPE</span>
+      
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+          <div class="image">
+            <a href="/perfil/">
+
+            {% if request.user.foto %}
+            <img src="{{ request.user.foto.url }}" class="img-circle elevation-2" alt="User">
+            
+            {% else %}
+            <img src="{% static 'images/anonymous-avatar.jpg' %}" class="img-circle elevation-2" alt="User">
+            {% endif %}
+            </a>
+          </div>
+          <div class="info" style="width: 70%;">
+            <a href="/perfil/" class="d-block" style="width: min-content;">{{ request.user.first_name }}</a>
+          </div>
+        <div title="Sair" id="logout" class="info"  onclick="logout()">
+          <i class="fas fa-sign-out-alt text-gray"></i>
+        </div>
+      </div>
+      
+      
+
+      <!-- SidebarSearch Form -->
+      <div class="form-inline">
+        <div class="input-group" data-widget="sidebar-search">
+          <input class="form-control form-control-sidebar" type="search" placeholder="Pesquisar" aria-label="Search">
+          <div class="input-group-append">
+            <button class="btn btn-sidebar">
+              <i class="fas fa-search fa-fw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false" id="menu1">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li id="li-doacao" class="nav-item">
+            <a id="a-doacao" href="#" class="nav-link">
+              <i class="nav-icon fas fa-hand-holding-heart"></i>
+              <p>
+                Doação
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview" id="sub-menu1">
+
+              <li class="nav-item">
+                <a href="/doar/" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon fas" height="1em" viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M224 24l0 56-56 0c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l56 0 0 56c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-56 56 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-56 0 0-56c0-13.3-10.7-24-24-24L248 0c-13.3 0-24 10.7-24 24zM559.7 392.2c17.8-13.1 21.6-38.1 8.5-55.9s-38.1-21.6-55.9-8.5L392.6 416 272 416c-8.8 0-16-7.2-16-16s7.2-16 16-16l16 0 64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0-16 0-78.3 0c-29.1 0-57.3 9.9-80 28L68.8 384 32 384c-17.7 0-32 14.3-32 32l0 64c0 17.7 14.3 32 32 32l160 0 160.5 0c29 0 57.3-9.3 80.7-26.5l126.6-93.3zm-367-8.2l.9 0c0 0 0 0 0 0c-.3 0-.6 0-.9 0z" fill="#777777"/></svg>                  
+                  <p>Doar</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="/minhas_doacoes/" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon fas" height="1em" viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9l2.6-2.4C267.2 438.6 256 404.6 256 368c0-97.2 78.8-176 176-176c28.3 0 55 6.7 78.7 18.5c.9-6.5 1.3-13 1.3-19.6l0-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1l0 5.8c0 41.5 17.2 81.2 47.6 109.5zM576 368a144 144 0 1 0 -288 0 144 144 0 1 0 288 0zm-76.7-43.3c6.2 6.2 6.2 16.4 0 22.6l-72 72c-6.2 6.2-16.4 6.2-22.6 0l-40-40c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L416 385.4l60.7-60.7c6.2-6.2 16.4-6.2 22.6 0z" fill="#777777"/></svg>                  
+                  <p>Minhas Doações</p>
+                </a>
+              </li>
+              
+            </ul>
+          </li>
+
+
+          {% if perms.auth_app.instituicao %}
+          <li id="li-minhas_campanhas" class="nav-item">
+            <a id="a-minhas_campanhas" href="#" class="nav-link">
+              <i class="nav-icon fas fa-bullhorn"></i>
+              <p>
+                Campanha
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/minhas_campanhas/" class="nav-link">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon fas" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M152.1 38.2c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 113C-2.3 103.6-2.3 88.4 7 79s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zm0 160c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zM224 96c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zm0 160c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zM160 416c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H192c-17.7 0-32-14.3-32-32zM48 368a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" fill="#777777"/></svg>
+                  <p>Minhas Campanhas</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
+        </ul>
+        
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Auth.js -->
+<script src="{% static 'js/logout.js' %}"></script>

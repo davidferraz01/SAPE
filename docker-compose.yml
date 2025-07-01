@@ -1,0 +1,30 @@
+services:
+  web:
+    build: .
+    environment:
+      - DJANGO_SETTINGS_MODULE=SAPE.settings.prod
+    command: gunicorn SAPE.wsgi:application --bind 0.0.0.0:443
+    volumes:
+      - .:/app
+      - ./static:/app/static  # Volume para arquivos estáticos
+      - media_volume:/app/media  # Volume para mídia
+      - ./db.sqlite3:/app/db.sqlite3  # Banco de dados
+    expose:
+      - "443"
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # Configuração do Nginx
+      - ./ssl:/ssl:ro  # Certificado ssl
+      - ./static:/app/static  # Volume para arquivos estáticos
+      - media_volume:/app/media  # Volume para mídia
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+
+volumes:
+  media_volume:
+

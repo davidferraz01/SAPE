@@ -1,0 +1,82 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0; 
+    font-family: 'Montserrat', sans-serif;
+}
+
+
+:root{
+    --cor-principal-700 : #F27673;
+    --cor-secundaria-roxa-700 : #2B7A66;
+    --cor-secundaria-roxa-500: #256958;
+    --cor-principal-cinza-700: #828282;
+    --cor-secundaria-cinza-500: #999999;
+}
+
+header{ 
+    display: flex;
+    justify-content: space-between;
+    height: 55px;
+}
+#painel-user{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+header h1{  
+    margin-top: 4px;
+    margin-left: -15px;
+
+}
+
+header ul{
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    color: var(--cor-principal-700);
+    margin-top: 28px;
+    margin-left: -20px;
+}
+header ul li{
+    cursor: pointer;
+    font-weight: bold;
+}
+#user-icon{
+    margin: 1rem 2.5rem 0 0;
+
+}
+#logo{
+    position: relative;
+    left: 21px;
+}
+header ul li:hover{
+    border-bottom: solid 2px var(--cor-secundaria-roxa-700);
+}
+
+header h1{
+    color: #F27673;
+}
+
+header span{
+    color: var(--cor-secundaria-roxa-700);
+    font-size: 23px;
+    margin-left: 5px;
+}
+li{
+    list-style: none;
+}
+
+header#menu-superior{
+    width: 100%;
+    padding-bottom: 30px;
+    box-shadow: 0px 0px 10px 5px rgba(194, 194, 194, 0.5);
+    position: fixed;
+    background-color: white;
+}
+
+ul#itens-menu{
+    margin-top: -70px;
+}
