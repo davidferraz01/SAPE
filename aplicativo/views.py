@@ -22,18 +22,18 @@ def doar(request):
 
         context = {'noticias': noticias}
 
-        return render(request, 'pages/doacao/doar.html')
+        return render(request, 'pages/doacao/doar.html', context)
     
 
 @login_required
 def minhas_doacoes(request):
     if request.method == 'GET':
         # Filtrando as doacoes pelo usuario logado
-        doacao = Dashboard.objects.filter(fk_usuario=request.user).order_by('-id')
+        #doacao = Dashboard.objects.filter(fk_usuario=request.user).order_by('-id')
 
-        context = {'doacao': doacao}
+        #context = {'doacao': doacao}
 
-        return render(request, 'pages/doacao/minhas_doacoes.html', context)
+        return render(request, 'pages/doacao/minhas_doacoes.html') #, context)
 
 @login_required
 def visualizar_campanha_doar(request, id):

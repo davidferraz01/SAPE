@@ -1,13 +1,13 @@
 .green-btn {
-  background-color: #3B7D66;
-  border-color: #3B7D66;
+  background-color: rgb(11, 11, 11);
+  border-color: rgb(11, 11, 11);
   font-weight: bold;
   transition: background-color 0.4s ease;
 }
 
 .green-btn:hover {
-  background-color: rgb(11, 11, 11);
-  border-color: rgb(11, 11, 11);
+  background-color: rgb(31, 30, 30);
+  border-color: rgb(31, 30, 30);
 }
 
 .blue-btn {

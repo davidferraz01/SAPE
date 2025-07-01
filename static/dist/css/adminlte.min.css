@@ -12577,12 +12577,12 @@
   }
   .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
   .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
-    background-color: #F27673; 
+    background-color: #b13030; 
     color: #fff;
   }
   .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
   .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active:hover {
-    background-color: #D95A57;
+    background-color: #8c2828;
     transition: background-color 0.4s ease;
   }
   .sidebar-dark-primary .nav-sidebar.nav-legacy > .nav-item > .nav-link.active,
