@@ -102,47 +102,39 @@
   
     <div class="content-wrapper">
       <!-- Content Header (Page header) -->
-      <div class="content-header">
-        <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <div id="title-header">
-              <h1 id="title-header" class="m-0">Notícias</h1>
-              </div>
-            </div><!-- /.col -->
-           
-          </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-      </div>
+        <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <div id="title-header">
+            <h1 id="title-header" class="m-0">Notícias</h1>
+            </div>
+          </div><!-- /.col -->
+          
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><button onclick=atualizar_noticias() id="cadastrar-campanha" class="btn btn-primary"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg>&nbsp;&nbsp;Atualizar Notícias</button></a></li>             
+            </ol>
+          </div><!-- /.col -->
+         
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
       <!-- /.content-header -->
   
       <!-- Main content -->
       <section class="content">
         <div class="grid-pai">
           <div id="flex-container">
-            {% for campanha in campanhas %}
-            <div class="flex-item campanha-{{ campanha.id }}">
-                <a class="item" href="/visualizar_campanha_doar/{{ campanha.id }}/">
-                    {% if campanha.imagem %}
-                    <div class="img-campanha-container">
-                        <img class="img-campanha" src="{{ campanha.imagem.url }}" alt="{{ campanha.titulo }}" />
-                    </div>
-                    {% endif %}
+            {% for noticia in noticias %}
+            <div class="flex-item campanha-{{ noticia.id }}">
+                <a class="item" href="/visualizar_campanha_doar/{{ noticia.id }}/">
                     <div class="info">
                         <label>Título</label> 
-                        <p id="titulo" class="dado">{{ campanha.titulo }}</p>
-                        
-                        <label>Meta de arrecadação</label> 
-                        <p id="meta" class="dado">R$ {{ campanha.meta_de_arrecadacao }}</p>
-                        
-                        <label>Valor arrecadado</label> 
-                        <p id="arrecadado" class="dado">R$ {{ campanha.valor_arrecadado }}</p>
-                        
-                        <label>Início</label> 
-                        <p id="inicio" class="dado">{{ campanha.inicio_campanha }}</p>
-                        
-                        <label>Término</label> 
-                        <p id="fim" class="dado">{{ campanha.fim_campanha }}</p>
+                        <p id="titulo" class="dado">{{ noticia.title }}</p>
+                        <label>Fonte</label>
+                        <p id="fonte" class="dado">{{noticia.source}}</p>
                     </div>
                 </a>
   
@@ -209,6 +201,32 @@
   <script src="{% static 'js/animacao_dropdown.js' %}"></script>
   <script src="{% static 'js/minhas_campanhas.js' %}"></script>
   
+ <script>
+async function atualizar_noticias() {
+  try {
+    const response = await fetch("{% url 'atualizar_noticias' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    });
+
+    const data = await response.json();
+    if (data.status === "ok") {
+      alert(`${data.novas} novas notícias salvas com sucesso.`);
+      location.reload();
+    } else {
+      alert("Erro ao atualizar notícias.");
+    }
+  } catch (error) {
+    console.error("Erro:", error);
+    alert("Erro na requisição.");
+  }
+}
+</script>
+
+
+
 </body>
 
 </html>

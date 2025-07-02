@@ -13,6 +13,97 @@ from django.shortcuts import get_object_or_404
 def home(request):
     return render(request, 'home.html')
 
+# views.py
+import requests
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from .models import News
+
+
+@csrf_exempt
+@login_required
+@require_POST
+def atualizar_noticias(request):
+    fontes = {
+        "G1": "https://g1.globo.com/rss/g1/",
+        "UOL": "https://rss.uol.com.br/feed/noticias.xml",
+        "EBSERH": "https://www.gov.br/ebserh/pt-br/site-feed/RSS",
+    }
+
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    novas = 0
+
+    for fonte_nome, url in fontes.items():
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code != 200:
+                continue
+
+            content = response.content
+            if fonte_nome == "UOL":
+                content = content.decode("iso-8859-1")
+            root = ET.fromstring(content)
+
+            # Formatação específica por fonte
+            if fonte_nome == "EBSERH":
+                items = root.findall("{http://purl.org/rss/1.0/}item")
+                for item in items:
+                    title = item.find("{http://purl.org/rss/1.0/}title")
+                    link = item.find("{http://purl.org/rss/1.0/}link")
+                    description = item.find("{http://purl.org/rss/1.0/}description")
+                    pub_date = item.find("{http://purl.org/dc/elements/1.1/}date")
+                    content_encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
+
+                    title_text = title.text.strip() if title is not None else ""
+                    link_text = link.text.strip() if link is not None else ""
+                    description_text = description.text.strip() if description is not None else ""
+                    pub_date_text = pub_date.text.strip() if pub_date is not None else ""
+                    content_text = content_encoded.text.strip() if content_encoded is not None else ""
+
+                    if not News.objects.filter(link=link_text).exists():
+                        News.objects.create(
+                            title=title_text,
+                            link=link_text,
+                            pub_date=pub_date_text,
+                            description=description_text,
+                            content=content_text,
+                            source=fonte_nome
+                        )
+                        novas += 1
+
+            else:
+                channel = root.find("channel")
+                items = channel.findall("item")
+
+                for item in items:
+                    title = item.find("title").text
+                    link = item.find("link").text
+                    pub_date = item.find("pubDate").text
+                    description = item.find("description").text or title
+
+                    if not News.objects.filter(link=link).exists():
+                        News.objects.create(
+                            title=title,
+                            link=link,
+                            pub_date=pub_date,
+                            description=description,
+                            content="",
+                            source=fonte_nome
+                        )
+                        novas += 1
+
+        except Exception as e:
+            print(f"Erro ao processar fonte {fonte_nome}: {e}")
+            continue
+
+    return JsonResponse({"status": "ok", "novas": novas})
+
+
+
 
 # Doacao
 @login_required

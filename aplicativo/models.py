@@ -11,11 +11,15 @@ class Source(models.Model):
 
 # Noticias
 class News(models.Model):
-    title = models.CharField(max_length=200, blank=False)
-    link = models.CharField(max_length=500, blank=False)
-    pubDate = models.DateField()
-    description = models.CharField(max_length=800, blank=True)
-    content = models.CharField(max_length=1500, blank=False)
+    title = models.CharField(max_length=500)
+    link = models.URLField(unique=True)
+    pub_date = models.CharField(max_length=100)
+    description = models.TextField()
+    content = models.TextField(blank=True, null=True)
+    source = models.CharField(max_length=50)  # ex: "G1", "UOL", "EBSERH"
+
+    def __str__(self):
+        return self.title
 
 class Dashboard(models.Model):
     pass

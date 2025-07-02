@@ -26,6 +26,8 @@ urlpatterns = [
 
     path('', init),
     path('home/', home, name='home'),
+
+    path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
     
 
     # Doacao
