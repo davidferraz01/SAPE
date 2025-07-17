@@ -29,6 +29,8 @@ urlpatterns = [
 
     path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
     
+    path('noticia/<int:id>/atualizar_indicadores/', atualizar_important_words, name='atualizar_important_words'),
+
 
     # Doacao
     path('visualizar_campanha_doar/<int:id>/', visualizar_campanha_doar, name='visualizar_campanha_doar'),

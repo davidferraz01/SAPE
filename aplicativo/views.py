@@ -6,23 +6,93 @@ from .models import *
 from rolepermissions.decorators import has_permission_decorator
 import json
 from auth_app.models import Usuario
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from bs4 import BeautifulSoup
+from datetime import datetime
+import requests
+import xml.etree.ElementTree as ET
+from django.views.decorators.http import require_POST
+from dateutil import parser
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.corpus import stopwords
+import string
 
 @csrf_exempt
 def home(request):
     return render(request, 'home.html')
 
-# views.py
-import requests
-import xml.etree.ElementTree as ET
-from datetime import datetime
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from .models import News
 
+def baixar_stopwords():
+    try:
+        _ = stopwords.words('portuguese')
+    except LookupError:
+        nltk.download('stopwords')
+
+def extrair_palavras_importantes(texto, top_n=10):
+    # Define stopwords e pontuação
+    baixar_stopwords()
+    stop_words = set(stopwords.words('portuguese'))
+    pontuacao = set(string.punctuation)
+
+    # Divide o texto em "documentos" (frases ou parágrafos)
+    documentos = [frase.strip() for frase in texto.split('\n') if frase.strip()]
+
+    # Função para pré-processar os textos
+    def preprocess(texto):
+        palavras = texto.lower().split()
+        return ' '.join([p.strip(''.join(pontuacao)) for p in palavras if p not in stop_words and p not in pontuacao])
+
+    documentos_limpos = [preprocess(doc) for doc in documentos]
+
+    # Aplica TF-IDF
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(documentos_limpos)
+
+    # Soma dos pesos TF-IDF por palavra
+    scores = X.sum(axis=0).A1
+    termos = vectorizer.get_feature_names_out()
+    termos_com_peso = list(zip(termos, scores))
+
+    # Ordena por peso (importância)
+    termos_ordenados = sorted(termos_com_peso, key=lambda x: x[1], reverse=True)
+
+    # Retorna os top N termos mais relevantes
+    return termos_ordenados[:top_n]
+
+
+@login_required
+def atualizar_important_words(request, id):
+    noticia = get_object_or_404(News, id=id)
+    
+    texto_para_analisar = noticia.content
+    palavras = extrair_palavras_importantes(texto_para_analisar)
+    
+    noticia.important_words = ", ".join(palavras)
+    noticia.save()
+    
+    messages.success(request, "Indicadores atualizados com sucesso.")
+    return redirect("noticia_detalhe", news_id=id)
+
+
+def extrair_texto_limpo(html):
+    # Parse do HTML
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Remove elementos de script, style, etc, se existirem
+    for tag in soup(['script', 'style']):
+        tag.decompose()
+
+    # Extrai e limpa o texto
+    texto = soup.get_text(separator='\n', strip=True)
+
+    # Remove múltiplas quebras de linha (opcional)
+    linhas = [linha.strip() for linha in texto.splitlines() if linha.strip()]
+    texto_limpo = '\n'.join(linhas)
+
+    return texto_limpo
 
 @csrf_exempt
 @login_required
@@ -37,70 +107,126 @@ def atualizar_noticias(request):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     novas = 0
 
-    for fonte_nome, url in fontes.items():
+    for fonte, url in fontes.items():
         try:
             response = requests.get(url, headers=headers)
             if response.status_code != 200:
                 continue
 
             content = response.content
-            if fonte_nome == "UOL":
+            if fonte == "UOL":
                 content = content.decode("iso-8859-1")
+
             root = ET.fromstring(content)
 
-            # Formatação específica por fonte
-            if fonte_nome == "EBSERH":
-                items = root.findall("{http://purl.org/rss/1.0/}item")
-                for item in items:
-                    title = item.find("{http://purl.org/rss/1.0/}title")
-                    link = item.find("{http://purl.org/rss/1.0/}link")
-                    description = item.find("{http://purl.org/rss/1.0/}description")
-                    pub_date = item.find("{http://purl.org/dc/elements/1.1/}date")
-                    content_encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
-
-                    title_text = title.text.strip() if title is not None else ""
-                    link_text = link.text.strip() if link is not None else ""
-                    description_text = description.text.strip() if description is not None else ""
-                    pub_date_text = pub_date.text.strip() if pub_date is not None else ""
-                    content_text = content_encoded.text.strip() if content_encoded is not None else ""
-
-                    if not News.objects.filter(link=link_text).exists():
-                        News.objects.create(
-                            title=title_text,
-                            link=link_text,
-                            pub_date=pub_date_text,
-                            description=description_text,
-                            content=content_text,
-                            source=fonte_nome
-                        )
-                        novas += 1
-
-            else:
-                channel = root.find("channel")
-                items = channel.findall("item")
-
-                for item in items:
-                    title = item.find("title").text
-                    link = item.find("link").text
-                    pub_date = item.find("pubDate").text
-                    description = item.find("description").text or title
-
-                    if not News.objects.filter(link=link).exists():
-                        News.objects.create(
-                            title=title,
-                            link=link,
-                            pub_date=pub_date,
-                            description=description,
-                            content="",
-                            source=fonte_nome
-                        )
-                        novas += 1
+            if fonte == "EBSERH":
+                novas += processar_ebserh(root)
+            elif fonte == "UOL":
+                novas += processar_uol(root)
+            elif fonte == "G1":
+                novas += processar_g1(root)
 
         except Exception as e:
-            print(f"Erro ao processar fonte {fonte_nome}: {e}")
+            print(f"Erro ao processar fonte {fonte}: {e}")
             continue
 
     return JsonResponse({"status": "ok", "novas": novas})
+
+
+def processar_ebserh(root):
+    novas = 0
+    items = root.findall("{http://purl.org/rss/1.0/}item")
+
+    for item in items:
+        title = item.find("{http://purl.org/rss/1.0/}title")
+        link = item.find("{http://purl.org/rss/1.0/}link")
+        description = item.find("{http://purl.org/rss/1.0/}description")
+        pub_date = item.find("{http://purl.org/dc/elements/1.1/}date")
+        content_encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
+
+        title_text = title.text.strip() if title is not None else ""
+        link_text = link.text.strip() if link is not None else ""
+        description_text = description.text.strip() if description is not None else ""
+        pub_date_text = pub_date.text.strip() if pub_date is not None else ""
+        content_text = content_encoded.text.strip() if content_encoded is not None else ""
+
+        if not News.objects.filter(link=link_text).exists():
+            News.objects.create(
+                title=title_text,
+                link=link_text,
+                pub_date=datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ"),
+                description=extrair_texto_limpo(description_text),
+                content=extrair_texto_limpo(content_text),
+                source="EBSERH",
+                important_words="A Nuvem de Palavras ainda não foi gerada."
+            )
+            novas += 1
+
+    return novas
+
+
+def processar_uol(root):
+    novas = 0
+    items = root.find("channel").findall("item")
+
+    for item in items:
+        title = item.findtext("title", "").strip()
+        link = item.findtext("link", "").strip()
+        pub_date_raw = item.findtext("pubDate", "").strip()
+        description = item.findtext("description", title).strip()
+
+        if not News.objects.filter(link=link).exists():
+            pub_date = parser.parse(pub_date_raw).replace(tzinfo=None)
+
+            News.objects.create(
+                title=title,
+                link=link,
+                pub_date=pub_date,
+                description=extrair_texto_limpo(description),
+                content="",
+                source="UOL",
+                important_words="A Nuvem de Palavras ainda não foi gerada."
+            )
+            novas += 1
+
+    return novas
+
+
+def processar_g1(root):
+    novas = 0
+    items = root.find("channel").findall("item")
+
+    for item in items:
+        title = item.findtext("title", "").strip()
+        link = item.findtext("link", "").strip()
+        pub_date_raw = item.findtext("pubDate", "").strip()
+
+        # Pega atom:subtitle para description (se existir)
+        atom_subtitle = item.find("{http://www.w3.org/2005/Atom}subtitle")
+        description_text = atom_subtitle.text.strip() if atom_subtitle is not None else ""
+
+        # Pega description HTML para content (removendo img e limpando)
+        description_html = item.findtext("description", "").strip()
+        soup = BeautifulSoup(description_html, "html.parser")
+        if soup.img:
+            soup.img.decompose()  # Remove tag <img>
+        content_text = soup.get_text(separator="\n").strip()
+
+        if not News.objects.filter(link=link).exists():
+            pub_date = parser.parse(pub_date_raw).replace(tzinfo=None)
+
+            News.objects.create(
+                title=title,
+                link=link,
+                pub_date=pub_date,
+                description=description_text,
+                content=content_text,
+                source="G1",
+                important_words="A Nuvem de Palavras ainda não foi gerada."
+            )
+            novas += 1
+
+    return novas
 
 
 
