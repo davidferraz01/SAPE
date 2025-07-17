@@ -128,29 +128,32 @@
     <section class="content">
       <div class="grid-pai">
         <div id="flex-container">
-          {% for campanha in campanhas %}
+          {% for noticia in noticias %}
           <div class="flex-item campanha-{{ campanha.id }}">
               <a class="item" href="/visualizar_campanha/{{ campanha.id }}/">
-                  {% if campanha.imagem %}
+                  {% if noticia.imagem %}
                   <div class="img-campanha-container">
                       <img class="img-campanha" src="{{ campanha.imagem.url }}" alt="{{ campanha.titulo }}" />
                   </div>
                   {% endif %}
                   <div class="info">
                       <label>Título</label> 
-                      <p id="titulo" class="dado">{{ campanha.titulo }}</p>
+                      <p id="titulo" class="dado">{{ noticia.title }}</p>
                       
-                      <label>Meta de arrecadação</label> 
-                      <p id="meta" class="dado">R$ {{ campanha.meta_de_arrecadacao }}</p>
+                      <label>Link</label> 
+                      <p id="meta" class="dado">R$ {{ noticia.link }}</p>
                       
-                      <label>Valor arrecadado</label> 
-                      <p id="arrecadado" class="dado">R$ {{ campanha.valor_arrecadado }}</p>
+                      <label>Data de publicação</label> 
+                      <p id="arrecadado" class="dado">R$ {{ noticia.pub_date }}</p>
                       
-                      <label>Início</label> 
-                      <p id="inicio" class="dado">{{ campanha.inicio_campanha }}</p>
+                      <label>Descrição</label> 
+                      <p id="inicio" class="dado">{{ noticia.description }}</p>
                       
-                      <label>Término</label> 
-                      <p id="fim" class="dado">{{ campanha.fim_campanha }}</p>
+                      <label>Conteúdo</label> 
+                      <p id="fim" class="dado">{{ noticia.content }}</p>
+
+                      <label>Fonte</label> 
+                      <p id="fim" class="dado">{{ noticia.source }}</p>
                   </div>
               </a>
 

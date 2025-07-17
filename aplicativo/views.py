@@ -128,10 +128,10 @@ def minhas_doacoes(request):
 
 @login_required
 def visualizar_campanha_doar(request, id):
-    campanha = get_object_or_404(Campanha, pk=id)
+    noticia = get_object_or_404(News, pk=id)
 
     context = {
-        'campanha': campanha
+        'noticia': noticia
     }
 
     return render(request, 'pages/doacao/visualizar_campanha_doar.html', context)
@@ -203,10 +203,10 @@ def cadastrar_doacao_request(request):
 @has_permission_decorator('instituicao')
 def minhas_campanhas(request):
     if request.method == 'GET':
-        # Filtrando as campanhas pelo usuário logado
-        campanhas = Campanha.objects.filter(fk_usuario=request.user).order_by('-id')
+        # Filtrando as noticias pelo usuário logado
+        noticias = News.objects.filter(fk_usuario=request.user).order_by('-id')
 
-        context = {'campanhas': campanhas}
+        context = {'noticias': noticias}
 
         return render(request, 'pages/campanha/minhas_campanhas.html', context)
 

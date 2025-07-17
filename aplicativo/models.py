@@ -11,6 +11,8 @@ class Source(models.Model):
 
 # Noticias
 class News(models.Model):
+    id = models.AutoField(primary_key=True)
+    image = models.ImageField(upload_to='noticias_imagens/', blank=True, null=True)
     title = models.CharField(max_length=500)
     link = models.URLField(unique=True)
     pub_date = models.CharField(max_length=100)
