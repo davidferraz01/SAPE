@@ -63,18 +63,22 @@ def extrair_palavras_importantes(texto, top_n=10):
     return termos_ordenados[:top_n]
 
 
+@csrf_exempt
 @login_required
+@require_POST
 def atualizar_important_words(request, id):
     noticia = get_object_or_404(News, id=id)
     
     texto_para_analisar = noticia.content
     palavras = extrair_palavras_importantes(texto_para_analisar)
     
-    noticia.important_words = ", ".join(palavras)
+    noticia.important_words = ", ".join([p[0] for p in palavras])
+
     noticia.save()
     
     messages.success(request, "Indicadores atualizados com sucesso.")
-    return redirect("noticia_detalhe", news_id=id)
+    return JsonResponse({"status": "ok"})
+
 
 
 def extrair_texto_limpo(html):
