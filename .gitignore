@@ -2,3 +2,4 @@ venv/
 aplicativo/migrations/
 auth_app/migrations/
 db.sqlite3
+start.sh

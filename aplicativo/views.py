@@ -14,6 +14,8 @@ from django.views.decorators.http import require_POST
 from dateutil import parser
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+from openai import OpenAI
+from django.conf import settings
 
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -245,17 +247,94 @@ def gerar_indicadores(request, id):
     noticia = get_object_or_404(News, id=id)
     
     texto_para_analisar = noticia.content
-    classificacao = classificar_noticia(texto_para_analisar)
-    
-    #noticia.important_words = ", ".join([p[0] for p in palavras])
+    titulo = noticia.title
 
-    #noticia.save()
+    classificacao = classificar_noticia(titulo,texto_para_analisar)
+    
+    noticia.classification = classificacao
+
+    noticia.save()
     
     messages.success(request, "Indicadores gerados com sucesso.")
     return JsonResponse({"status": "ok"})
 
-def classificar_noticia():
-    return None
+def classificar_noticia(titulo, noticia):
+    system_prompt = """
+    Você é um classificador de notícias da Rede Ebserh. Sua tarefa é ler uma notícia e escolher:
+    1) exatamente 1 PILAR, dentre a lista abaixo;
+    2) exatamente 1 OBJETIVO ESTRATÉGICO pertencente ao PILAR escolhido.
+
+    REGRAS
+    - Selecione o objetivo mais específico que reflita a ação central da notícia.
+    - Em empate, prefira: maior especificidade > maior presença de termos do objetivo > impacto para o SUS/Ebserh.
+    - Nunca escolha objetivo de um pilar diferente do pilar selecionado.
+    - Saída OBRIGATÓRIA em JSON no formato definido abaixo, sem texto extra.
+    - Se o texto estiver em outro idioma, traduza mentalmente e classifique normalmente.
+
+    FORMATO DE SAÍDA (JSON)
+    {
+    "pilar": "<nome do pilar, exatamente como na lista>",
+    "objetivo_codigo": "<ex.: OE04>",
+    "objetivo_titulo": "<título curto do objetivo>",
+    "justificativa": "<1 ou 2 frases objetivas indicando os trechos/termos que motivaram a escolha>",
+    "confianca": <número entre 0 e 1>
+    }
+
+    TAXONOMIA
+    - Sociedade (usuário SUS):
+    - OE01: Ampliar e qualificar a participação dos hospitais na rede de atenção à saúde do SUS
+    - OE02: Qualificar o cuidado hospitalar
+    - OE03: Ampliar e qualificar a participação na rede nacional de cuidados oncológicos
+    - OE04: Participar da implementação da Política Nacional de Atenção Especializada e do esforço de redução de filas
+    - OE25: Educação e informação em saúde para a população
+    - Sociedade (estudante):
+    - OE05: Aprimorar as condições de ensino e os cenários de prática
+    - OE06: Consolidar o Exame Nacional de Residência (Enare) como forma prioritária de ingresso
+    - OE07: Apoiar a qualificação de docentes e preceptores
+    - OE08: Qualificar o dimensionamento e a oferta de vagas de residência
+    - Sociedade (pesquisador):
+    - OE09: Criar ambiente favorável à gestão e à pesquisa em saúde
+    - OE10: Contribuir com a estratégia de saúde digital (ex.: AGHU, telessaúde)
+    - Responsabilidade Ambiental, Social e Governança:
+    - OE11: Aprimorar a governança corporativa da Rede
+    - OE12: Promover sustentabilidade ambiental e responsabilidade social
+    - OE13: Prevenir e enfrentar assédio e discriminação
+    - OE14: Melhorias em infraestrutura e condições de trabalho
+    - Desenvolvimento Institucional:
+    - OE15: Atuação integrada dos hospitais em Rede
+    - OE16: Fortalecer o reconhecimento e a imagem pública da Ebserh
+    - OE17: Desenvolver capacidade institucional em gestão hospitalar
+    - OE18: Promover inovação e transformação digital na Rede
+    - Sustentabilidade Financeira:
+    - OE19: Promover eficiência nos processos de gestão do trabalho
+    - OE20: Ampliar e diversificar as fontes de financiamento
+    - OE21: Aprimorar processos de compras e contratações
+    - Desenvolvimento do Trabalhador:
+    - OE22: Promover escuta e diálogo permanentes com trabalhadores
+    - OE23: Promover engajamento e valorização dos trabalhadores
+    - OE24: Desenvolver estratégias de educação permanente e continuada
+    """
+
+    user_prompt = f"""Classifique a notícia a seguir conforme o sistema e a taxonomia fornecidos.
+
+    TÍTULO: {[titulo]}
+    TEXTO COMPLETO: {[noticia]}
+
+    Retorne apenas o JSON solicitado.
+    """
+
+    client = OpenAI()
+    resp = client.chat.completions.create(
+        model="gpt-4o-mini",
+        temperature=0,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+    )
+    print(resp.choices[0].message.content)
+    return resp.choices[0].message.content
 ######
 
 # Doacao
