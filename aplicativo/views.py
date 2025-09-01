@@ -25,6 +25,7 @@ def home(request):
     return render(request, 'home.html')
 
 
+### Nuvem de Palavras ###
 def baixar_stopwords():
     try:
         _ = stopwords.words('portuguese')
@@ -76,7 +77,7 @@ def atualizar_important_words(request, id):
 
     noticia.save()
     
-    messages.success(request, "Indicadores atualizados com sucesso.")
+    messages.success(request, "Nuvem de Palavras geradas com sucesso.")
     return JsonResponse({"status": "ok"})
 
 
@@ -231,9 +232,28 @@ def processar_g1(root):
             novas += 1
 
     return novas
+######
 
+### Gerar Indicadores ###
+@csrf_exempt
+@login_required
+@require_POST
+def gerar_indicadores(request, id):
+    noticia = get_object_or_404(News, id=id)
+    
+    texto_para_analisar = noticia.content
+    classificacao = classificar_noticia(texto_para_analisar)
+    
+    #noticia.important_words = ", ".join([p[0] for p in palavras])
 
+    #noticia.save()
+    
+    messages.success(request, "Indicadores gerados com sucesso.")
+    return JsonResponse({"status": "ok"})
 
+def classificar_noticia():
+    return None
+######
 
 # Doacao
 @login_required
@@ -243,7 +263,7 @@ def doar(request):
 
         context = {'noticias': noticias}
 
-        return render(request, 'pages/doacao/doar.html', context)
+        return render(request, 'pages/doacao/avaliacao_noticias.html', context)
     
 
 @login_required
@@ -264,7 +284,7 @@ def visualizar_campanha_doar(request, id):
         'noticia': noticia
     }
 
-    return render(request, 'pages/doacao/visualizar_campanha_doar.html', context)
+    return render(request, 'pages/doacao/visualizar_noticia.html', context)
     
 
 @login_required
