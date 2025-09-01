@@ -19,6 +19,7 @@ class News(models.Model):
     content = models.TextField(blank=True, null=True)
     source = models.CharField(max_length=50)  # ex: "G1", "UOL", "EBSERH"
     important_words = models.TextField(blank=True, null=True)
+    classification = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.title

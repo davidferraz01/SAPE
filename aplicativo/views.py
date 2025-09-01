@@ -163,7 +163,8 @@ def processar_ebserh(root):
                 description=extrair_texto_limpo(description_text),
                 content=extrair_texto_limpo(content_text),
                 source="EBSERH",
-                important_words="A Nuvem de Palavras ainda não foi gerada."
+                important_words="A Nuvem de Palavras ainda não foi gerada.",
+                classification="A Classificação ainda não foi gerada."
             )
             novas += 1
 
@@ -190,7 +191,8 @@ def processar_uol(root):
                 description=extrair_texto_limpo(description),
                 content="",
                 source="UOL",
-                important_words="A Nuvem de Palavras ainda não foi gerada."
+                important_words="A Nuvem de Palavras ainda não foi gerada.",
+                classification="A Classificação ainda não foi gerada."
             )
             novas += 1
 
@@ -227,7 +229,8 @@ def processar_g1(root):
                 description=description_text,
                 content=content_text,
                 source="G1",
-                important_words="A Nuvem de Palavras ainda não foi gerada."
+                important_words="A Nuvem de Palavras ainda não foi gerada.",
+                classification="A Classificação ainda não foi gerada."
             )
             novas += 1
 
