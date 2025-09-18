@@ -24,5 +24,8 @@ class News(models.Model):
     def __str__(self):
         return self.title
 
-class Dashboard(models.Model):
-    pass
+# Dashboard de um mes
+class MonthDashboard(models.Model):
+    id = models.AutoField(primary_key=True)
+    month = models.CharField(max_length=50)
+    oe_count = models.JSONField(default=list, blank=True)
