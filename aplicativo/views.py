@@ -166,7 +166,7 @@ def processar_ebserh(root):
                 content=extrair_texto_limpo(content_text),
                 source="EBSERH",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification="A Classificação ainda não foi gerada."
+                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
             )
             novas += 1
 
@@ -194,7 +194,7 @@ def processar_uol(root):
                 content="",
                 source="UOL",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification="A Classificação ainda não foi gerada."
+                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
             )
             novas += 1
 
@@ -232,7 +232,7 @@ def processar_g1(root):
                 content=content_text,
                 source="G1",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification="A Classificação ainda não foi gerada."
+                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
             )
             novas += 1
 
@@ -251,7 +251,7 @@ def gerar_indicadores(request, id):
 
     classificacao = classificar_noticia(titulo,texto_para_analisar)
 
-    noticia.classification = classificacao
+    noticia.classification = json.loads(classificacao)
 
     noticia.save()
 
@@ -333,6 +333,7 @@ def classificar_noticia(titulo, noticia):
             {"role": "user", "content": user_prompt}
         ],
     )
+
     return resp.choices[0].message.content
 ######
 
