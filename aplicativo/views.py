@@ -71,14 +71,14 @@ def extrair_palavras_importantes(texto, top_n=10):
 @require_POST
 def atualizar_important_words(request, id):
     noticia = get_object_or_404(News, id=id)
-    
+
     texto_para_analisar = noticia.content
     palavras = extrair_palavras_importantes(texto_para_analisar)
-    
+
     noticia.important_words = ", ".join([p[0] for p in palavras])
 
     noticia.save()
-    
+
     messages.success(request, "Nuvem de Palavras geradas com sucesso.")
     return JsonResponse({"status": "ok"})
 
@@ -245,16 +245,16 @@ def processar_g1(root):
 @require_POST
 def gerar_indicadores(request, id):
     noticia = get_object_or_404(News, id=id)
-    
+
     texto_para_analisar = noticia.content
     titulo = noticia.title
 
     classificacao = classificar_noticia(titulo,texto_para_analisar)
-    
+
     noticia.classification = classificacao
 
     noticia.save()
-    
+
     messages.success(request, "Indicadores gerados com sucesso.")
     return JsonResponse({"status": "ok"})
 
@@ -333,7 +333,6 @@ def classificar_noticia(titulo, noticia):
             {"role": "user", "content": user_prompt}
         ],
     )
-    print(resp.choices[0].message.content)
     return resp.choices[0].message.content
 ######
 
@@ -346,7 +345,7 @@ def doar(request):
         context = {'noticias': noticias}
 
         return render(request, 'pages/doacao/avaliacao_noticias.html', context)
-    
+
 
 @login_required
 def minhas_doacoes(request):
@@ -367,7 +366,7 @@ def visualizar_campanha_doar(request, id):
     }
 
     return render(request, 'pages/doacao/visualizar_noticia.html', context)
-    
+
 
 @login_required
 def cadastrar_doacao(request, id):
@@ -378,12 +377,12 @@ def cadastrar_doacao(request, id):
     return render(request, 'pages/doacao/cadastrar_doacao.html', context)
 
 
-@login_required  
+@login_required
 def cadastrar_doacao_request(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)  # Converte JSON para dicionário Python
-            
+
             campanha_id = data.get('campanha_id')
             campanha = Campanha.objects.get(id=campanha_id)  # Obtém a campanha correspondente
 
@@ -512,7 +511,7 @@ def remover_campanha(request, id):
         campanha = get_object_or_404(Campanha, id=id, fk_usuario=request.user)
         campanha.delete()
         return JsonResponse({"success": True, "message": "Campanha removida com sucesso!"})
-    
+
     return JsonResponse({"success": False, "message": "Método não permitido."}, status=405)
 
 
@@ -555,4 +554,3 @@ def pagina_em_desenvolvimento(request):
 @login_required
 def perfil(request):
     return render(request,'pages/default/perfil.html')
-

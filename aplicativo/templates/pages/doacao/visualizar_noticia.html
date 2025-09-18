@@ -6,13 +6,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SAPE</title>
-  
-  
+
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{% static 'css/visualizar_campanha.css' %}">
-    
+
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -30,8 +30,8 @@
   <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
   <!-- overlayScrollbars -->
   <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
-  
-  
+
+
   <!-- summernote -->
   <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
   <link rel="icon" href="{% static  'images/sape-icon.png' %}">
@@ -67,7 +67,7 @@
         </a>
       </li>
 
-    </ul> 
+    </ul>
 
   </nav>
   <!-- /.navbar -->
@@ -121,7 +121,7 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="row tabela">
             <div class="col-12">
                 <div class="card">
@@ -155,7 +155,7 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="row tabela">
             <div class="col-12">
                 <div class="card">
@@ -179,29 +179,29 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="row tabela">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Indicadores</h3>
+                        <h3 class="card-title">Classificação</h3>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap">
                             <thead>
                                 <tr>
-                                    <th>Classificação</th>
-                                    <th>Indicador 1</th>
-                                    <th>Indicador 2</th>
-                                    <th>Indicador 3</th>
-                                </tr>
+                                    <th>Pilar</th>
+                                    <th>Objetivo</th>
+                                    <th>Justificativa</th>
+                                    <th>Confiança</th>
+                                </tr> 
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>{{ noticia.classification }}</td>
-                                    <td>O indicador ainda não foi gerado.</td>
-                                    <td>O indicador ainda não foi gerado.</td>
-                                    <td>O indicador ainda não foi gerado.</td>
+                                    <td>{{ noticia.classification.pilar }}</td>
+                                    <td>{{ noticia.classification.objetivo_codigo }} - {{ noticia.classification.objetivo_titulo }}</td>
+                                    <td>{{ noticia.classification.justificativa }}</td>
+                                    <td>{{ noticia.classification.confianca }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -209,19 +209,19 @@
                 </div>
             </div>
         </div>
-    
+
      </div>
       <!-- /. container-fluid -->
 
       <div class="card-footer button-container">
         <div class="row">
-          
+
           <div class="col-sm-12 col-md-auto">
             <a href="/doar/">
               <button id="botao-voltar" class="btn btn-info float-left"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>&nbsp;&nbsp;Voltar</button>
             </a>
           </div>
-          
+
           <div class="col-sm-12 col-md">
             <button onclick=gerar_nuvem_palavras() id="botao-cadastrar_doacao" class="btn btn-info float-right" style="margin-right: 15px;"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 216C0 149.7 53.7 96 120 96l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72zm256 0c0-66.3 53.7-120 120-120l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72z"/></svg>&nbsp;&nbsp;Gerar Nuvem de Palavras</button>
 
