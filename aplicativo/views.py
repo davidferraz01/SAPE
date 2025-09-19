@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from openai import OpenAI
 from django.conf import settings
+import re
 
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -162,6 +163,7 @@ def processar_ebserh(root):
                 title=title_text,
                 link=link_text,
                 pub_date=datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ"),
+                month=datetime.now().month,
                 description=extrair_texto_limpo(description_text),
                 content=extrair_texto_limpo(content_text),
                 source="EBSERH",
@@ -190,6 +192,7 @@ def processar_uol(root):
                 title=title,
                 link=link,
                 pub_date=pub_date,
+                month=datetime.now().month,
                 description=extrair_texto_limpo(description),
                 content="",
                 source="UOL",
@@ -228,6 +231,7 @@ def processar_g1(root):
                 title=title,
                 link=link,
                 pub_date=pub_date,
+                month=datetime.now().month,
                 description=description_text,
                 content=content_text,
                 source="G1",
@@ -337,6 +341,97 @@ def classificar_noticia(titulo, noticia):
     return resp.choices[0].message.content
 ######
 
+### Gerar Dashborad do Mes ###
+@csrf_exempt
+@login_required
+@require_POST
+def novo_dashboard(request, month, name, description):
+    MonthDashboard.objects.create(
+        title = name,
+        description = description,
+        month = month,
+        oe_count = []
+    )
+
+    return JsonResponse({"status": "ok", "title": name})
+
+@login_required
+def preview_dashboard(request, id):
+    dashboard = get_object_or_404(MonthDashboard, pk=id)
+
+    context = {
+        'dashboard': dashboard
+    }
+
+    return render(request, 'pages/doacao/visualizar_dashboard.html', context)
+
+@login_required
+def minhas_doacoes(request):
+    if request.method == 'GET':
+        dashboards = MonthDashboard.objects.order_by('-id')  # Ordenando pelo mais recente
+
+        context = {'dashboards': dashboards}
+
+        return render(request, 'pages/doacao/minhas_doacoes.html', context)
+
+def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
+    """
+    Converte 'OE01'..'OE24' em índice 0..23.
+    Tolera 'oe1', 'OE 01', etc. Retorna None se inválido/fora do range.
+    """
+    _OE_MAX = 25
+    if not obj_codigo:
+        return None
+    s = str(obj_codigo).strip().upper()
+    m = re.search(r'(\d{1,2})', s)
+    if not m:
+        return None
+    n = int(m.group(1))
+    return n - 1 if 1 <= n <= _OE_MAX else None
+
+@csrf_exempt
+@login_required
+@require_POST
+def atualizar_dashboard_mes(request, id, month):
+    """
+    Para o mês 'YYYY-MM':
+      1) Chama gerar_indicadores(request, id) para cada notícia do mês.
+      2) Soma por classification.objetivo_codigo.
+      3) Salva em MonthDashboard.oe_count como lista de 24 inteiros
+         (idx 0=OE01, ..., idx 23=OE24).
+    Retorna (month, counts).
+    """
+    _OE_MAX = 25
+    # 1) Gera/atualiza classificação de todas as notícias do mês
+    print(month)
+    #news_ids = News.objects.filter(month=month).values_list("id", flat=True)
+    #for nid in news_ids.iterator():
+    #    gerar_indicadores(request, nid)
+    #    print("indicador gerado")
+
+    # 2) Reconta objetivos do mês
+    counts = [0] * _OE_MAX
+    qs = News.objects.filter(month=month).values_list("classification", flat=True)
+    for cls in qs.iterator():
+        if not cls:
+            continue
+        try:
+            #idx = _objetivo_codigo_para_index(cls.get("objetivo_codigo"))
+            idx = int(cls.get("objetivo_codigo")[-2:]) - 1
+            if idx is not None:
+                counts[idx] += 1
+        except Exception:
+            # classification inesperada -> ignora
+            print("Erro ao coletar objetivo!")
+
+    # 3) Salva/atualiza o dashboard do mês (sem transaction.atomic)
+    dashboard = get_object_or_404(MonthDashboard, id=id)
+    dashboard.oe_count = counts
+    dashboard.save()
+
+    return JsonResponse({"status": "ok"})
+######
+
 # Doacao
 @login_required
 def doar(request):
@@ -347,16 +442,6 @@ def doar(request):
 
         return render(request, 'pages/doacao/avaliacao_noticias.html', context)
 
-
-@login_required
-def minhas_doacoes(request):
-    if request.method == 'GET':
-        # Filtrando as doacoes pelo usuario logado
-        #doacao = Dashboard.objects.filter(fk_usuario=request.user).order_by('-id')
-
-        #context = {'doacao': doacao}
-
-        return render(request, 'pages/doacao/minhas_doacoes.html') #, context)
 
 @login_required
 def visualizar_campanha_doar(request, id):

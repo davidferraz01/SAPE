@@ -102,113 +102,51 @@
   
     <div class="content-wrapper">
       <!-- Content Header (Page header) -->
-      <div class="content-header">
-        <div class="container-fluid">
-          <div class="row mb-2">
-            <div class="col-sm-6">
-              <div id="title-header">
-              <h1 id="title-header" class="m-0">Dashboards</h1>
-              </div>
-            </div><!-- /.col -->
-           
-          </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-      </div>
+        <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <div id="title-header">
+            <h1 id="title-header" class="m-0">Dashboards</h1>
+            </div>
+          </div><!-- /.col -->
+          
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><button onclick=novo_dashboard() id="cadastrar-campanha" class="btn btn-primary"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg>&nbsp;&nbsp;Novo Dashboard</button></a></li>             
+            </ol>
+          </div><!-- /.col -->
+         
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
       <!-- /.content-header -->
   
-
-
-    <!-- Main content -->
-    <section class="content">
+      <!-- Main content -->
+      <section class="content">
         <div class="grid-pai">
-            <div id="flex-container">
-                {% for doacao in doacao %}
-                <div class="flex-item doacao-{{ doacao.id }}">
-                    <div class="item">
-                        <div class="info">
-                            <label>ID da Doação</label>
-                            <p class="dado">{{ doacao.id }}</p>
-
-                            <label>Data da Doação</label>
-                            <p class="dado">{{ doacao.data_doacao }}</p>
-
-                            {% if doacao.valor %}
-                            <label>Valor Doado</label>
-                            <p class="dado">R$ {{ doacao.valor }}</p>
-                            {% endif %}
-
-                            {% if doacao.alimentos_qtd > 0 %}
-                            <label>Alimentos</label>
-                            <p class="dado">{{ doacao.alimentos_qtd }} unidades ({{ doacao.alimentos_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.vestimentas_qtd > 0 %}
-                            <label>Vestimentas</label>
-                            <p class="dado">{{ doacao.vestimentas_qtd }} unidades ({{ doacao.vestimentas_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.moveis_qtd > 0 %}
-                            <label>Móveis</label>
-                            <p class="dado">{{ doacao.moveis_qtd }} unidades ({{ doacao.moveis_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.brinquedos_qtd > 0 %}
-                            <label>Brinquedos</label>
-                            <p class="dado">{{ doacao.brinquedos_qtd }} unidades ({{ doacao.brinquedos_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.livros_qtd > 0 %}
-                            <label>Livros</label>
-                            <p class="dado">{{ doacao.livros_qtd }} unidades ({{ doacao.livros_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.higiene_qtd > 0 %}
-                            <label>Artigos de Higiene</label>
-                            <p class="dado">{{ doacao.higiene_qtd }} unidades ({{ doacao.higiene_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.cobertores_qtd > 0 %}
-                            <label>Cobertores</label>
-                            <p class="dado">{{ doacao.cobertores_qtd }} unidades ({{ doacao.cobertores_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.eletronicos_qtd > 0 %}
-                            <label>Eletrônicos</label>
-                            <p class="dado">{{ doacao.eletronicos_qtd }} unidades ({{ doacao.eletronicos_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.escola_qtd > 0 %}
-                            <label>Artigos Escolares</label>
-                            <p class="dado">{{ doacao.escola_qtd }} unidades ({{ doacao.escola_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.hospitalares_qtd > 0 %}
-                            <label>Artigos Hospitalares</label>
-                            <p class="dado">{{ doacao.hospitalares_qtd }} unidades ({{ doacao.hospitalares_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.outros_qtd > 0 %}
-                            <label>Outros</label>
-                            <p class="dado">{{ doacao.outros_qtd }} unidades ({{ doacao.outros_desc }})</p>
-                            {% endif %}
-
-                            {% if doacao.mensagem %}
-                            <label>Mensagem</label>
-                            <p class="dado">{{ doacao.mensagem }}</p>
-                            {% endif %}
-                        </div>
+          <div id="flex-container">
+            {% for dashboard in dashboards %}
+            <div class="flex-item campanha-{{ dashboard.id }}">
+                <a class="item" href="/preview_dashboard/{{ dashboard.id }}/">
+                    <div class="info">
+                        <label>Título</label> 
+                        <p id="titulo" class="dado">{{ dashboard.title }}</p>
+                        <label>Descrição</label>
+                        <p id="descricao" class="dado">{{ dashboard.description }}</p>
                     </div>
-                </div>
-                {% empty %}
-                <div class="centered-div">
-                    <p>Você ainda não gerou nenhum Dashboard.</p>
-                </div>
-                {% endfor %}
+                </a>
             </div>
+            {% endfor %}
         </div>
-    </section>
-
-  
+          
+        </div>
+        <div class="centered-div" id="no-cadastros" style="display: none;">
+          <!-- Div centralizada para "Não há cadastros" -->
+          <p>Nenhum Dashboard criado.</p>
+        </div>
+      </section>
     
       <!-- /.content -->
     </div>
@@ -253,14 +191,149 @@
   <!-- Menu Lateral -->
   <script src="{% static 'js/menu_lateral.js' %}"></script>
   <script>
-   active_menu_minhas_doacoes()
+   active_menu_doar()
   </script>
   
   <script src="{% static 'js/filtros.js' %}"></script>
   <script src="{% static 'js/animacao_dropdown.js' %}"></script>
   <script src="{% static 'js/minhas_campanhas.js' %}"></script>
   
+<script>
+  // Cria o modal apenas uma vez
+  function ensureNovoDashboardModal() {
+    if (document.getElementById('modalNovoDashboard')) return;
+
+    const modalHtml = `
+<div class="modal fade" id="modalNovoDashboard" tabindex="-1" role="dialog" aria-labelledby="modalNovoDashboardLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNovoDashboardLabel">Novo Dashboard</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formNovoDashboard">
+          <div class="form-group">
+            <label for="nd_titulo">Título</label>
+            <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard de Setembro">
+          </div>
+
+          <div class="form-group">
+            <label for="nd_descricao">Descrição</label>
+            <textarea class="form-control" id="nd_descricao" rows="3" placeholder="Breve descrição do dashboard"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="nd_mes">Mês</label>
+            <select class="form-control" id="nd_mes">
+              <option value="" selected disabled>Selecione o mês</option>
+              <option value="1">01 - Janeiro</option>
+              <option value="2">02 - Fevereiro</option>
+              <option value="3">03 - Março</option>
+              <option value="4">04 - Abril</option>
+              <option value="5">05 - Maio</option>
+              <option value="6">06 - Junho</option>
+              <option value="7">07 - Julho</option>
+              <option value="8">08 - Agosto</option>
+              <option value="9">09 - Setembro</option>
+              <option value="10">10 - Outubro</option>
+              <option value="11">11 - Novembro</option>
+              <option value="12">12 - Dezembro</option>
+            </select>
+            <small class="form-text text-muted">O backend espera o número do mês (1–12).</small>
+          </div>
+        </form>
+        <div id="nd_alert" class="alert alert-danger d-none mb-0" role="alert"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button id="nd_confirmar" type="button" class="btn btn-primary">
+          <i class="fas fa-plus mr-1"></i> Criar Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Handler do botão "Criar Dashboard"
+    document.getElementById('nd_confirmar').addEventListener('click', async function () {
+      const titulo = document.getElementById('nd_titulo').value.trim();
+      const descricao = document.getElementById('nd_descricao').value.trim();
+      const mesStr = document.getElementById('nd_mes').value;
+
+      const alertBox = document.getElementById('nd_alert');
+      const showError = (msg) => { alertBox.textContent = msg; alertBox.classList.remove('d-none'); };
+      const hideError = () => { alertBox.textContent = ''; alertBox.classList.add('d-none'); };
+
+      hideError();
+
+      if (!titulo) return showError('Informe o título.');
+      if (!descricao) return showError('Informe a descrição.');
+      if (!mesStr) return showError('Selecione o mês (1–12).');
+
+      const mes = parseInt(mesStr, 10);
+      if (isNaN(mes) || mes < 1 || mes > 12) return showError('Mês inválido. Escolha entre 1 e 12.');
+
+      // Sanitiza para uso em path e codifica
+      const sanitizeForPath = (s) => encodeURIComponent(s.replace(/[\/\\]/g, '-'));
+      const nameEnc = sanitizeForPath(titulo);
+      const descEnc = sanitizeForPath(descricao);
+
+      // Monta path conforme rota:
+      // path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard')
+      const url = `/novo-dashboard/${mes}/${nameEnc}/${descEnc}/`;
+
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        });
+
+        if (!resp.ok) {
+          // tenta extrair mensagem do backend
+          let msg = 'Erro ao criar dashboard.';
+          try {
+            const err = await resp.json();
+            if (err && err.detail) msg = err.detail;
+          } catch(_) {}
+          alert(msg);
+          return;
+        }
+
+        const data = await resp.json();
+        if (data.status === "ok") {
+          // opcional: fechar modal
+          $('#modalNovoDashboard').modal('hide');
+          alert(`${data.title} criado com sucesso.`);
+          location.reload();
+        } else {
+          alert(data.message || "Erro ao criar Dashboard.");
+        }
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("Erro na requisição.");
+      }
+    });
+  }
+
+  // Função chamada no botão
+  async function novo_dashboard() {
+    ensureNovoDashboardModal();
+    $('#modalNovoDashboard').modal('show');
+    $('#modalNovoDashboard').on('shown.bs.modal', function () {
+      document.getElementById('nd_titulo').focus();
+    });
+  }
+</script>
+
+
 </body>
 
 </html>
-

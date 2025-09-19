@@ -15,6 +15,7 @@ class News(models.Model):
     title = models.CharField(max_length=500)
     link = models.URLField(unique=True)
     pub_date = models.CharField(max_length=100)
+    month = models.IntegerField(blank=False)
     description = models.TextField()
     content = models.TextField(blank=True, null=True)
     source = models.CharField(max_length=50)  # ex: "G1", "UOL", "EBSERH"
@@ -27,5 +28,7 @@ class News(models.Model):
 # Dashboard de um mes
 class MonthDashboard(models.Model):
     id = models.AutoField(primary_key=True)
-    month = models.CharField(max_length=50)
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
+    month = models.IntegerField(blank=False)
     oe_count = models.JSONField(default=list, blank=True)
