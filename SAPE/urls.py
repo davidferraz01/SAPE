@@ -68,6 +68,7 @@ urlpatterns = [
     path('reset_password/complete/', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('send_email/', send_email, name="send_email"),
     path('pagina_em_desenvolvimento/', pagina_em_desenvolvimento, name='pagina_em_desenvolvimento'),
+    
     path('admin/', admin.site.urls),
     
    
