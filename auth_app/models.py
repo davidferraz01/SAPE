@@ -21,6 +21,7 @@ class Usuario(AbstractUser):
     cpf = models.CharField(max_length=14, unique=True, blank=True, null=True)
     telefone = models.CharField(max_length=16)
     foto = models.ImageField(upload_to='usuarios/', blank=True, null=True)
+    #team = models.CharField(max_length=100, blank=True, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["tipo_usuario"]
@@ -32,6 +33,6 @@ class Usuario(AbstractUser):
 def assign_user_role(sender, instance, created, **kwargs):
     if created:  # Se o usuário foi recém-criado
         if instance.tipo_usuario == Usuario.ANALISTA:
-            assign_role(instance, AnalistaRole)  # Atribui a role de Doador corretamente
+            assign_role(instance, AnalistaRole)  # Atribui a role de Analista corretamente
         elif instance.tipo_usuario == Usuario.SUPERVISOR:
-            assign_role(instance, SupervisorRole)  # Atribui a role de Instituição corretamente
+            assign_role(instance, SupervisorRole)  # Atribui a role de Supervisor corretamente

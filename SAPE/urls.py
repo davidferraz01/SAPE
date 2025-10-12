@@ -27,14 +27,14 @@ urlpatterns = [
     path('', init),
     path('home/', home, name='home'),
 
+    # Noticias
     path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
-    path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard'),
-    
     path('noticia/<int:id>/gerar_nuvens_palavras/', atualizar_important_words, name='atualizar_important_words'),
-
     path('noticia/<int:id>/atualizar_indicadores/', gerar_indicadores, name='gerar_indicadores'),
-    path('noticia/<int:id>/<int:month>/atualizar_dashboard_mes/', atualizar_dashboard_mes, name='atualizar_dashboard_mes'),
 
+    # Dashboard
+    path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard'),
+    path('noticia/<int:id>/<int:month>/atualizar_dashboard_mes/', atualizar_dashboard_mes, name='atualizar_dashboard_mes'),
     path('preview_dashboard/<int:id>/', preview_dashboard, name='preview_dashboard'),
 
     # Doacao

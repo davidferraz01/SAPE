@@ -1,9 +1,10 @@
-function active_menu_doar(){
+function active_menu_noticias(){
     $(document).ready(function() { 
         // Adiciona as classes para ativar o menu
         $('.nav-item a[href="/doar/"]').addClass('active');
-        $('#a-doacao').addClass('active')
-        $('#li-doacao').addClass('menu-open')
+        $('#a-avaliacao').addClass('active')
+        $('#li-avaliacao').addClass('menu-open')
+        $('#a-noticias').addClass('active')
         $('body').addClass('sidebar-mini sidebar-collapse');
       });
 }
@@ -12,8 +13,9 @@ function active_menu_minhas_doacoes(){
     $(document).ready(function() { 
         // Adiciona as classes para ativar o menu
         $('.nav-item a[href="/minhas_doacoes/"]').addClass('active');
-        $('#a-doacao').addClass('active')
-        $('#li-doacao').addClass('menu-open')
+        $('#a-avaliacao').addClass('active')
+        $('#li-avaliacao').addClass('menu-open')
+        $('#a-monitoramento').addClass('active')
         $('body').addClass('sidebar-mini sidebar-collapse');
       });
 }
