@@ -67,7 +67,7 @@ function cadastrarDoacao(campanhaId) {
     .then(data => {
       if (data.success) {
           toastr.success('Doação enviada com sucesso!');
-          setTimeout(() => window.location.href = '/doar/', 2000);
+          setTimeout(() => window.location.href = '/noticias/', 2000);
       } else {
           toastr.error(data.message || 'Erro ao cadastrar campanha.');
       }

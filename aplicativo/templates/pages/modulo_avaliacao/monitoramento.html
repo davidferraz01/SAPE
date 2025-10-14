@@ -129,7 +129,7 @@
           <div id="flex-container">
             {% for dashboard in dashboards %}
             <div class="flex-item campanha-{{ dashboard.id }}">
-                <a class="item" href="/preview_dashboard/{{ dashboard.id }}/">
+                <a class="item" href="/visualizar_dashboard/{{ dashboard.id }}/">
                     <div class="info">
                         <label>Título</label> 
                         <p id="titulo" class="dado">{{ dashboard.title }}</p>
@@ -193,7 +193,7 @@
   <!-- Menu Lateral -->
   <script src="{% static 'js/menu_lateral.js' %}"></script>
   <script>
-   active_menu_minhas_doacoes()
+   active_menu_monitoramento()
   </script>
   
   <script src="{% static 'js/filtros.js' %}"></script>
@@ -206,60 +206,60 @@
     if (document.getElementById('modalNovoDashboard')) return;
 
     const modalHtml = `
-<div class="modal fade" id="modalNovoDashboard" tabindex="-1" role="dialog" aria-labelledby="modalNovoDashboardLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalNovoDashboardLabel">Novo Dashboard</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <form id="formNovoDashboard">
-          <div class="form-group">
-            <label for="nd_titulo">Título</label>
-            <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard de Setembro">
+    <div class="modal fade" id="modalNovoDashboard" tabindex="-1" role="dialog" aria-labelledby="modalNovoDashboardLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNovoDashboardLabel">Novo Dashboard</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
 
-          <div class="form-group">
-            <label for="nd_descricao">Descrição</label>
-            <textarea class="form-control" id="nd_descricao" rows="3" placeholder="Breve descrição do dashboard"></textarea>
+          <div class="modal-body">
+            <form id="formNovoDashboard">
+              <div class="form-group">
+                <label for="nd_titulo">Título</label>
+                <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard de Setembro">
+              </div>
+
+              <div class="form-group">
+                <label for="nd_descricao">Descrição</label>
+                <textarea class="form-control" id="nd_descricao" rows="3" placeholder="Breve descrição do dashboard"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="nd_mes">Mês</label>
+                <select class="form-control" id="nd_mes">
+                  <option value="" selected disabled>Selecione o mês</option>
+                  <option value="1">01 - Janeiro</option>
+                  <option value="2">02 - Fevereiro</option>
+                  <option value="3">03 - Março</option>
+                  <option value="4">04 - Abril</option>
+                  <option value="5">05 - Maio</option>
+                  <option value="6">06 - Junho</option>
+                  <option value="7">07 - Julho</option>
+                  <option value="8">08 - Agosto</option>
+                  <option value="9">09 - Setembro</option>
+                  <option value="10">10 - Outubro</option>
+                  <option value="11">11 - Novembro</option>
+                  <option value="12">12 - Dezembro</option>
+                </select>
+                <small class="form-text text-muted">O backend espera o número do mês (1–12).</small>
+              </div>
+            </form>
+            <div id="nd_alert" class="alert alert-danger d-none mb-0" role="alert"></div>
           </div>
 
-          <div class="form-group">
-            <label for="nd_mes">Mês</label>
-            <select class="form-control" id="nd_mes">
-              <option value="" selected disabled>Selecione o mês</option>
-              <option value="1">01 - Janeiro</option>
-              <option value="2">02 - Fevereiro</option>
-              <option value="3">03 - Março</option>
-              <option value="4">04 - Abril</option>
-              <option value="5">05 - Maio</option>
-              <option value="6">06 - Junho</option>
-              <option value="7">07 - Julho</option>
-              <option value="8">08 - Agosto</option>
-              <option value="9">09 - Setembro</option>
-              <option value="10">10 - Outubro</option>
-              <option value="11">11 - Novembro</option>
-              <option value="12">12 - Dezembro</option>
-            </select>
-            <small class="form-text text-muted">O backend espera o número do mês (1–12).</small>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button id="nd_confirmar" type="button" class="btn btn-primary">
+              <i class="fas fa-plus mr-1"></i> Criar Dashboard
+            </button>
           </div>
-        </form>
-        <div id="nd_alert" class="alert alert-danger d-none mb-0" role="alert"></div>
+        </div>
       </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button id="nd_confirmar" type="button" class="btn btn-primary">
-          <i class="fas fa-plus mr-1"></i> Criar Dashboard
-        </button>
-      </div>
-    </div>
-  </div>
-</div>`;
+    </div>`;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
     // Handler do botão "Criar Dashboard"

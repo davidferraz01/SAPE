@@ -28,6 +28,7 @@ urlpatterns = [
     path('home/', home, name='home'),
 
     # Noticias
+    path('noticias/', pagina_noticias, name='noticias'),
     path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
     path('noticia/<int:id>/gerar_nuvens_palavras/', atualizar_important_words, name='atualizar_important_words'),
     path('noticia/<int:id>/atualizar_indicadores/', gerar_indicadores, name='gerar_indicadores'),
@@ -35,13 +36,13 @@ urlpatterns = [
     # Dashboard
     path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard'),
     path('noticia/<int:id>/<int:month>/atualizar_dashboard_mes/', atualizar_dashboard_mes, name='atualizar_dashboard_mes'),
-    path('preview_dashboard/<int:id>/', preview_dashboard, name='preview_dashboard'),
+    path('visualizar_dashboard/<int:id>/', visualizar_dashboard, name='visualizar_dashboard'),
+    path('monitoramento/', pagina_monitoramento, name='dashboards'),
+
 
     # Doacao
-    path('visualizar_campanha_doar/<int:id>/', visualizar_campanha_doar, name='visualizar_campanha_doar'),
+    path('visualizar_noticia/<int:id>/', visualizar_noticia, name='visualizar_noticia'),
     path('cadastrar_doacao_request/', cadastrar_doacao_request, name='cadastrar_doacao_request'),
-    path('doar/', doar, name='doar'),
-    path('minhas_doacoes/', minhas_doacoes, name='minhas_doacoes'),
     path('cadastrar_doacao/<int:id>/', cadastrar_doacao, name='cadastrar_doacao'),
 
     # Campanhas

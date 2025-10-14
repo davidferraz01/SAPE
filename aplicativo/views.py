@@ -356,23 +356,23 @@ def novo_dashboard(request, month, name, description):
     return JsonResponse({"status": "ok", "title": name})
 
 @login_required
-def preview_dashboard(request, id):
+def visualizar_dashboard(request, id):
     dashboard = get_object_or_404(MonthDashboard, pk=id)
 
     context = {
         'dashboard': dashboard
     }
 
-    return render(request, 'pages/doacao/visualizar_dashboard.html', context)
+    return render(request, 'pages/modulo_avaliacao/visualizar_dashboard.html', context)
 
 @login_required
-def minhas_doacoes(request):
+def pagina_monitoramento(request):
     if request.method == 'GET':
         dashboards = MonthDashboard.objects.order_by('-id')  # Ordenando pelo mais recente
 
         context = {'dashboards': dashboards}
 
-        return render(request, 'pages/doacao/minhas_doacoes.html', context)
+        return render(request, 'pages/modulo_avaliacao/monitoramento.html', context)
 
 def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
     """
@@ -434,24 +434,24 @@ def atualizar_dashboard_mes(request, id, month):
 
 # Doacao
 @login_required
-def doar(request):
+def pagina_noticias(request):
     if request.method == 'GET':
         noticias = News.objects.order_by('-id')  # Ordenando pela mais recente
 
         context = {'noticias': noticias}
 
-        return render(request, 'pages/doacao/avaliacao_noticias.html', context)
+        return render(request, 'pages/modulo_avaliacao/noticias.html', context)
 
 
 @login_required
-def visualizar_campanha_doar(request, id):
+def visualizar_noticia(request, id):
     noticia = get_object_or_404(News, pk=id)
 
     context = {
         'noticia': noticia
     }
 
-    return render(request, 'pages/doacao/visualizar_noticia.html', context)
+    return render(request, 'pages/modulo_avaliacao/visualizar_noticia.html', context)
 
 
 @login_required
@@ -460,7 +460,7 @@ def cadastrar_doacao(request, id):
 
     context = {'campanha': campanha}
 
-    return render(request, 'pages/doacao/cadastrar_doacao.html', context)
+    return render(request, 'pages/modulo_avaliacao/cadastrar_doacao.html', context)
 
 
 @login_required
