@@ -84,7 +84,35 @@
             </form>
           </div>
         </li>
-        
+
+        <!-- Filtros -->
+        <div class="btn-group">
+          <button
+            type="button"
+            class="nav-link btn btn-sm dropdown-toggle"
+            id="filtroMenu"
+            data-toggle="dropdown"
+            data-offset="0,8"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="filtroMenuLista">
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <div class="dropdown-menu" id="filtroMenuLista" aria-labelledby="filtroMenu">
+            <!-- Descrição não clicável -->
+            <span class="dropdown-item-text text-muted small">
+              Filtrar por Fonte
+            </span>
+            <div class="dropdown-divider"></div>
+
+            <!-- Opções -->
+            <a href="#" class="dropdown-item">EBSERH</a>
+            <a href="#" class="dropdown-item">G1</a>
+            <a href="#" class="dropdown-item">UOL</a>
+          </div>
+        </div>
+
   
         <!-- fullscreen -->
         <li class="nav-item d-none d-sm-inline-block">
