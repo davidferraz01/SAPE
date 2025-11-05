@@ -86,32 +86,29 @@
         </li>
 
         <!-- Filtros -->
-        <div class="btn-group">
-          <button
-            type="button"
-            class="nav-link btn btn-sm dropdown-toggle"
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link"
+            href="#"
             id="filtroMenu"
+            role="button"
             data-toggle="dropdown"
             data-offset="0,8"
             aria-haspopup="true"
             aria-expanded="false"
             aria-controls="filtroMenuLista">
-            <i class="fas fa-bars"></i>
-          </button>
+            <i class="fas fa-filter"></i>
+          </a>
 
-          <div class="dropdown-menu" id="filtroMenuLista" aria-labelledby="filtroMenu">
-            <!-- Descrição não clicável -->
-            <span class="dropdown-item-text text-muted small">
-              Filtrar por Fonte
-            </span>
+          <div class="dropdown-menu dropdown-menu-right" id="filtroMenuLista" aria-labelledby="filtroMenu">
+            <span class="dropdown-item-text text-muted small">Filtrar por Fonte</span>
             <div class="dropdown-divider"></div>
-
-            <!-- Opções -->
             <a href="#" class="dropdown-item">EBSERH</a>
             <a href="#" class="dropdown-item">G1</a>
             <a href="#" class="dropdown-item">UOL</a>
           </div>
-        </div>
+        </li>
+
 
   
         <!-- fullscreen -->
@@ -228,7 +225,7 @@
   </script>
   
   <script src="{% static 'js/filtros.js' %}"></script>
-  <script src="{% static 'js/animacao_dropdown.js' %}"></script>
+  <!-- <script src="{% static 'js/animacao_dropdown.js' %}"></script> -->
   <script src="{% static 'js/minhas_campanhas.js' %}"></script>
   
 <script>
