@@ -34,8 +34,8 @@ urlpatterns = [
     path('noticia/<int:id>/atualizar_indicadores/', gerar_indicadores, name='gerar_indicadores'),
 
     # Dashboard
-    path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard'),
-    path('noticia/<int:id>/<int:month>/atualizar_dashboard_mes/', atualizar_dashboard_mes, name='atualizar_dashboard_mes'),
+    path('novo-dashboard/<str:initial_date>/<str:final_date>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard'),
+    path('noticia/<int:id>/atualizar_dashboard/', atualizar_dashboard, name='atualizar_dashboard'),
     path('visualizar_dashboard/<int:id>/', visualizar_dashboard, name='visualizar_dashboard'),
     path('monitoramento/', pagina_monitoramento, name='dashboards'),
 

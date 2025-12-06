@@ -220,7 +220,7 @@
             <form id="formNovoDashboard">
               <div class="form-group">
                 <label for="nd_titulo">Título</label>
-                <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard de Setembro">
+                <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard - Semana 01 a 07/12">
               </div>
 
               <div class="form-group">
@@ -229,23 +229,16 @@
               </div>
 
               <div class="form-group">
-                <label for="nd_mes">Mês</label>
-                <select class="form-control" id="nd_mes">
-                  <option value="" selected disabled>Selecione o mês</option>
-                  <option value="1">01 - Janeiro</option>
-                  <option value="2">02 - Fevereiro</option>
-                  <option value="3">03 - Março</option>
-                  <option value="4">04 - Abril</option>
-                  <option value="5">05 - Maio</option>
-                  <option value="6">06 - Junho</option>
-                  <option value="7">07 - Julho</option>
-                  <option value="8">08 - Agosto</option>
-                  <option value="9">09 - Setembro</option>
-                  <option value="10">10 - Outubro</option>
-                  <option value="11">11 - Novembro</option>
-                  <option value="12">12 - Dezembro</option>
-                </select>
-                <small class="form-text text-muted">O backend espera o número do mês (1–12).</small>
+                <label for="nd_initial_date">Data inicial</label>
+                <input type="date" class="form-control" id="nd_initial_date">
+              </div>
+
+              <div class="form-group">
+                <label for="nd_final_date">Data final</label>
+                <input type="date" class="form-control" id="nd_final_date">
+                <small class="form-text text-muted">
+                  O período será usado para gerar os dados deste dashboard.
+                </small>
               </div>
             </form>
             <div id="nd_alert" class="alert alert-danger d-none mb-0" role="alert"></div>
@@ -266,7 +259,8 @@
     document.getElementById('nd_confirmar').addEventListener('click', async function () {
       const titulo = document.getElementById('nd_titulo').value.trim();
       const descricao = document.getElementById('nd_descricao').value.trim();
-      const mesStr = document.getElementById('nd_mes').value;
+      const initialDate = document.getElementById('nd_initial_date').value;
+      const finalDate = document.getElementById('nd_final_date').value;
 
       const alertBox = document.getElementById('nd_alert');
       const showError = (msg) => { alertBox.textContent = msg; alertBox.classList.remove('d-none'); };
@@ -276,19 +270,24 @@
 
       if (!titulo) return showError('Informe o título.');
       if (!descricao) return showError('Informe a descrição.');
-      if (!mesStr) return showError('Selecione o mês (1–12).');
+      if (!initialDate) return showError('Informe a data inicial.');
+      if (!finalDate) return showError('Informe a data final.');
 
-      const mes = parseInt(mesStr, 10);
-      if (isNaN(mes) || mes < 1 || mes > 12) return showError('Mês inválido. Escolha entre 1 e 12.');
+      // initialDate e finalDate vêm no formato YYYY-MM-DD; comparação de string funciona
+      if (initialDate > finalDate) {
+        return showError('A data inicial não pode ser maior que a data final.');
+      }
 
       // Sanitiza para uso em path e codifica
       const sanitizeForPath = (s) => encodeURIComponent(s.replace(/[\/\\]/g, '-'));
       const nameEnc = sanitizeForPath(titulo);
       const descEnc = sanitizeForPath(descricao);
+      const initialEnc = sanitizeForPath(initialDate);
+      const finalEnc = sanitizeForPath(finalDate);
 
-      // Monta path conforme rota:
-      // path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard')
-      const url = `/novo-dashboard/${mes}/${nameEnc}/${descEnc}/`;
+      // NOVA ROTA (sugestão):
+      // path('novo-dashboard/<str:initial_date>/<str:final_date>/<str:title>/<str:description>/', novo_dashboard, name='novo_dashboard')
+      const url = `/novo-dashboard/${initialEnc}/${finalEnc}/${nameEnc}/${descEnc}/`;
 
       try {
         const resp = await fetch(url, {
@@ -299,7 +298,6 @@
         });
 
         if (!resp.ok) {
-          // tenta extrair mensagem do backend
           let msg = 'Erro ao criar dashboard.';
           try {
             const err = await resp.json();
@@ -311,7 +309,6 @@
 
         const data = await resp.json();
         if (data.status === "ok") {
-          // opcional: fechar modal
           $('#modalNovoDashboard').modal('hide');
           alert(`${data.title} criado com sucesso.`);
           location.reload();
@@ -334,6 +331,7 @@
     });
   }
 </script>
+
 
 
 </body>

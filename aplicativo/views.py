@@ -17,6 +17,7 @@ from django.contrib import messages
 from openai import OpenAI
 from django.conf import settings
 import re
+from datetime import date
 
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -159,11 +160,13 @@ def processar_ebserh(root):
         content_text = content_encoded.text.strip() if content_encoded is not None else ""
 
         if not News.objects.filter(link=link_text).exists():
+            dt = datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ")
+            data_only = dt.date()
+
             News.objects.create(
                 title=title_text,
                 link=link_text,
-                pub_date=datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ"),
-                month=datetime.now().month,
+                pub_date=data_only,
                 description=extrair_texto_limpo(description_text),
                 content=extrair_texto_limpo(content_text),
                 source="EBSERH",
@@ -173,6 +176,42 @@ def processar_ebserh(root):
             novas += 1
 
     return novas
+
+PT_MONTH_TO_NUM = {
+    "Jan": 1,
+    "Fev": 2,
+    "Mar": 3,
+    "Abr": 4,
+    "Mai": 5,
+    "Jun": 6,
+    "Jul": 7,
+    "Ago": 8,
+    "Set": 9,
+    "Out": 10,
+    "Nov": 11,
+    "Dez": 12,
+}
+
+def parse_data_uol(pub_date_raw: str) -> date:
+    """
+    Converte algo como:
+    'Sáb, 06 Dez 2025 16:39:00 -0300'
+    em datetime.date(2025, 12, 6)
+    """
+    s = pub_date_raw.strip()
+
+    if "," in s:
+        _, s = s.split(",", 1)
+        s = s.strip()
+
+    partes = s.split()
+
+    dia = int(partes[0])
+    mes_str = partes[1][:3].capitalize()
+    ano = int(partes[2])
+
+    mes = PT_MONTH_TO_NUM[mes_str]
+    return date(ano, mes, dia)
 
 
 def processar_uol(root):
@@ -186,18 +225,23 @@ def processar_uol(root):
         description = item.findtext("description", title).strip()
 
         if not News.objects.filter(link=link).exists():
-            pub_date = parser.parse(pub_date_raw).replace(tzinfo=None)
+            data_only = parse_data_uol(pub_date_raw)
 
             News.objects.create(
                 title=title,
                 link=link,
-                pub_date=pub_date,
-                month=datetime.now().month,
+                pub_date=data_only,
                 description=extrair_texto_limpo(description),
                 content="",
                 source="UOL",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
+                classification={
+                    "pilar": "Classificação ainda não foi gerada.",
+                    "objetivo_codigo": "",
+                    "objetivo_titulo": "-",
+                    "justificativa": "-",
+                    "confianca": "-",
+                },
             )
             novas += 1
 
@@ -231,7 +275,6 @@ def processar_g1(root):
                 title=title,
                 link=link,
                 pub_date=pub_date,
-                month=datetime.now().month,
                 description=description_text,
                 content=content_text,
                 source="G1",
@@ -281,7 +324,6 @@ def classificar_noticia(titulo, noticia):
     "objetivo_codigo": "<ex.: OE04>",
     "objetivo_titulo": "<título curto do objetivo>",
     "justificativa": "<1 ou 2 frases objetivas indicando os trechos/termos que motivaram a escolha>",
-    "confianca": <número entre 0 e 1>
     }
 
     TAXONOMIA
@@ -341,15 +383,16 @@ def classificar_noticia(titulo, noticia):
     return resp.choices[0].message.content
 ######
 
-### Gerar Dashborad do Mes ###
+### Gerar Dashborad ###
 @csrf_exempt
 @login_required
 @require_POST
-def novo_dashboard(request, month, name, description):
-    MonthDashboard.objects.create(
+def novo_dashboard(request, initial_date, final_date, name, description):
+    Dashboard.objects.create(
         title = name,
         description = description,
-        month = month,
+        initial_date = initial_date,
+        final_date = final_date,
         oe_count = []
     )
 
@@ -357,7 +400,7 @@ def novo_dashboard(request, month, name, description):
 
 @login_required
 def visualizar_dashboard(request, id):
-    dashboard = get_object_or_404(MonthDashboard, pk=id)
+    dashboard = get_object_or_404(Dashboard, pk=id)
 
     context = {
         'dashboard': dashboard
@@ -368,7 +411,7 @@ def visualizar_dashboard(request, id):
 @login_required
 def pagina_monitoramento(request):
     if request.method == 'GET':
-        dashboards = MonthDashboard.objects.order_by('-id')  # Ordenando pelo mais recente
+        dashboards = Dashboard.objects.order_by('-id')  # Ordenando pelo mais recente
 
         context = {'dashboards': dashboards}
 
@@ -389,45 +432,49 @@ def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
     n = int(m.group(1))
     return n - 1 if 1 <= n <= _OE_MAX else None
 
+
 @csrf_exempt
 @login_required
 @require_POST
-def atualizar_dashboard_mes(request, id, month):
+def atualizar_dashboard(request, id):
     """
-    Para o mês 'YYYY-MM':
-      1) Chama gerar_indicadores(request, id) para cada notícia do mês.
-      2) Soma por classification.objetivo_codigo.
-      3) Salva em MonthDashboard.oe_count como lista de 24 inteiros
-         (idx 0=OE01, ..., idx 23=OE24).
-    Retorna (month, counts).
+    Atualiza o Dashboard usando TODAS as notícias
+    cuja pub_date está entre initial_date e final_date
+    definidos no próprio Dashboard.
     """
     _OE_MAX = 25
-    # 1) Gera/atualiza classificação de todas as notícias do mês
-    print(month)
-    #news_ids = News.objects.filter(month=month).values_list("id", flat=True)
-    #for nid in news_ids.iterator():
-    #    gerar_indicadores(request, nid)
-    #    print("indicador gerado")
 
-    # 2) Reconta objetivos do mês
+    # 1) Busca o dashboard e as datas do intervalo
+    dashboard = get_object_or_404(Dashboard, id=id)
+    initial = dashboard.initial_date
+    final = dashboard.final_date
+
+    # 2) (Opcional) gerar/atualizar indicadores para todas as notícias do período
+    news_ids = News.objects.filter(pub_date__range=(initial, final)).values_list("id", flat=True)
+    for nid in news_ids.iterator():
+        gerar_indicadores(request, nid)
+        print("indicador gerado", nid)
+
+    # 3) Reconta objetivos no intervalo de datas
     counts = [0] * _OE_MAX
-    qs = News.objects.filter(month=month).values_list("classification", flat=True)
+    qs = News.objects.filter(
+        pub_date__range=(initial, final)
+    ).values_list("classification", flat=True)
+
     for cls in qs.iterator():
         if not cls:
             continue
         try:
-            #idx = _objetivo_codigo_para_index(cls.get("objetivo_codigo"))
-            idx = int(cls.get("objetivo_codigo")[-2:]) - 1
+            idx = _objetivo_codigo_para_index(cls.get("objetivo_codigo"))
             if idx is not None:
                 counts[idx] += 1
         except Exception:
             # classification inesperada -> ignora
-            print("Erro ao coletar objetivo!")
+            print("Erro ao coletar objetivo!", cls)
 
-    # 3) Salva/atualiza o dashboard do mês (sem transaction.atomic)
-    dashboard = get_object_or_404(MonthDashboard, id=id)
+    # 4) Salva/atualiza o dashboard (sem transaction.atomic)
     dashboard.oe_count = counts
-    dashboard.save()
+    dashboard.save(update_fields=["oe_count"])
 
     return JsonResponse({"status": "ok"})
 ######
