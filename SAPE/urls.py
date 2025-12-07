@@ -29,6 +29,7 @@ urlpatterns = [
 
     # Noticias
     path('noticias/', pagina_noticias, name='noticias'),
+    path('visualizar_noticia/<int:id>/', visualizar_noticia, name='visualizar_noticia'),
     path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
     path('noticia/<int:id>/gerar_nuvens_palavras/', atualizar_important_words, name='atualizar_important_words'),
     path('noticia/<int:id>/atualizar_indicadores/', gerar_indicadores, name='gerar_indicadores'),
@@ -41,7 +42,6 @@ urlpatterns = [
 
 
     # Doacao
-    path('visualizar_noticia/<int:id>/', visualizar_noticia, name='visualizar_noticia'),
     path('cadastrar_doacao_request/', cadastrar_doacao_request, name='cadastrar_doacao_request'),
     path('cadastrar_doacao/<int:id>/', cadastrar_doacao, name='cadastrar_doacao'),
 

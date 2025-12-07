@@ -403,10 +403,11 @@ def visualizar_dashboard(request, id):
     dashboard = get_object_or_404(Dashboard, pk=id)
 
     context = {
-        'dashboard': dashboard
+        "dashboard": dashboard,
+        "oe_news_map": dashboard.oe_news_map or {},
     }
+    return render(request, "pages/modulo_avaliacao/visualizar_dashboard.html", context)
 
-    return render(request, 'pages/modulo_avaliacao/visualizar_dashboard.html', context)
 
 @login_required
 def pagina_monitoramento(request):
@@ -441,40 +442,61 @@ def atualizar_dashboard(request, id):
     Atualiza o Dashboard usando TODAS as notícias
     cuja pub_date está entre initial_date e final_date
     definidos no próprio Dashboard.
+
+    Preenche:
+      - oe_count: lista de contagens por OE
+      - oe_news_map: dict "OE01" -> [ { id, title, link, pub_date, source }, ... ]
     """
     _OE_MAX = 25
-
-    # 1) Busca o dashboard e as datas do intervalo
     dashboard = get_object_or_404(Dashboard, id=id)
     initial = dashboard.initial_date
     final = dashboard.final_date
 
-    # 2) (Opcional) gerar/atualizar indicadores para todas as notícias do período
-    news_ids = News.objects.filter(pub_date__range=(initial, final)).values_list("id", flat=True)
+    # 1) Gera/atualiza indicadores para todas as notícias do período
+    news_ids = News.objects.filter(
+        pub_date__range=(initial, final)
+    ).values_list("id", flat=True)
+
     for nid in news_ids.iterator():
         gerar_indicadores(request, nid)
         print("indicador gerado", nid)
 
-    # 3) Reconta objetivos no intervalo de datas
+    # 2) Reconta objetivos e monta o mapa de notícias por OE
     counts = [0] * _OE_MAX
+    oe_news_map: dict[str, list[dict]] = {}
+
     qs = News.objects.filter(
-        pub_date__range=(initial, final)
-    ).values_list("classification", flat=True)
+        pub_date__range=(initial, final),
+        classification__isnull=False
+    ).only("id", "title", "link", "pub_date", "source", "classification")
 
-    for cls in qs.iterator():
-        if not cls:
+    for n in qs.iterator():
+        cls = n.classification or {}
+        obj_codigo = cls.get("objetivo_codigo")
+        idx = _objetivo_codigo_para_index(obj_codigo)
+
+        if idx is None:
             continue
-        try:
-            idx = _objetivo_codigo_para_index(cls.get("objetivo_codigo"))
-            if idx is not None:
-                counts[idx] += 1
-        except Exception:
-            # classification inesperada -> ignora
-            print("Erro ao coletar objetivo!", cls)
 
-    # 4) Salva/atualiza o dashboard (sem transaction.atomic)
+        # Atualiza contagem
+        counts[idx] += 1
+
+        # Monta chave "OE01", "OE02", ...
+        oe_key = f"OE{idx + 1:02d}"
+
+        if oe_key not in oe_news_map:
+            oe_news_map[oe_key] = []
+
+        oe_news_map[oe_key].append({
+            "id": n.id,
+            "title": n.title,
+            "source": n.source,
+        })
+
+    # 3) Salva/atualiza o dashboard
     dashboard.oe_count = counts
-    dashboard.save(update_fields=["oe_count"])
+    dashboard.oe_news_map = oe_news_map
+    dashboard.save(update_fields=["oe_count", "oe_news_map"])
 
     return JsonResponse({"status": "ok"})
 ######

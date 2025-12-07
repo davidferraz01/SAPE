@@ -84,35 +84,64 @@
     </div>
     <!-- /.content-header -->
 
-    <!-- Main content -->
-    <div class="card card-success">
-      <div class="card-header d-flex flex-column align-items-start">
-        <h3 class="card-title mb-2">
-          <strong>{{ dashboard.title }}</strong>
-        </h3>
+    <section class="content">
+      <div class="container-fluid">
 
-        <p class="mb-1">
-          {{ dashboard.description }}
-        </p>
+        <!-- Card principal do Dashboard -->
+        <div class="card card-success">
+          <div class="card-header d-flex flex-column align-items-start">
+            <h3 class="card-title mb-2">
+              <strong>{{ dashboard.title }}</strong>
+            </h3>
 
-        <p class="mb-0">
-          <strong>Período:</strong>
-          {{ dashboard.initial_date|date:"d/m/Y" }}
-          &nbsp;até&nbsp;
-          {{ dashboard.final_date|date:"d/m/Y" }}
-        </p>
-      </div>
+            <p class="mb-1">
+              <strong>Descrição:</strong>
+              {{ dashboard.description }}
+            </p>
 
-      <div class="card-body">
-        <div class="chart">
-          <canvas id="barChart"
-                  style="min-height:250px;height:550px;max-height:650px;max-width:100%;">
-          </canvas>
+            <p class="mb-0">
+              <strong>Período:</strong>
+              {{ dashboard.initial_date|date:"d/m/Y" }}
+              &nbsp;até&nbsp;
+              {{ dashboard.final_date|date:"d/m/Y" }}
+            </p>
+          </div>
+
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="barChart"
+                      style="min-height:250px;height:550px;max-height:650px;max-width:100%;">
+              </canvas>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-        <div class="card-footer button-container">
+        <!-- Card com a lista de notícias da OE clicada -->
+        <div id="news-list-card" class="card mt-3" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" id="news-list-title">Notícias</h3>
+          </div>
+          <div class="card-body">
+            <p id="news-list-empty" class="text-muted mb-2">
+              Nenhuma notícia encontrada para esta classificação.
+            </p>
+            <div class="table-responsive">
+              <table class="table table-sm table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Fonte</th>
+                    <th>Título</th>
+                  </tr>
+                </thead>
+                <tbody id="news-list-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="card-footer button-container mt-3 p-0 border-0" style="background: transparent;">
           <div class="row">
             <div class="col-sm-12 col-md-auto">
               <a href="/monitoramento/">
@@ -209,8 +238,9 @@ async function gerar_indicadores() {
 }
 </script>
 
-{# Envia oe_count para o JS com segurança #}
+{# Envia oe_count e oe_news_map para o JS com segurança #}
 {{ dashboard.oe_count|default:"[]"|json_script:"oeCountData" }}
+{{ oe_news_map|default:"{}"|json_script:"oeNewsMapData" }}
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -219,26 +249,139 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  // Lê a lista vinda do JSONField
-  var raw = [];
+  // -----------------------------
+  // 0) Mapa OE -> descrição
+  // -----------------------------
+  var OE_DESCRICOES = {
+    // Sociedade (usuário SUS)
+    "OE01": "Sociedade (usuário SUS): Ampliar e qualificar a participação dos hospitais na rede de atenção à saúde do SUS",
+    "OE02": "Sociedade (usuário SUS): Qualificar o cuidado hospitalar",
+    "OE03": "Sociedade (usuário SUS): Ampliar e qualificar a participação na rede nacional de cuidados oncológicos",
+    "OE04": "Sociedade (usuário SUS): Participar da implementação da Política Nacional de Atenção Especializada e do esforço de redução de filas",
+    "OE25": "Sociedade (usuário SUS): Educação e informação em saúde para a população",
+
+    // Sociedade (estudante)
+    "OE05": "Sociedade (estudante): Aprimorar as condições de ensino e os cenários de prática",
+    "OE06": "Sociedade (estudante): Consolidar o Exame Nacional de Residência (Enare) como forma prioritária de ingresso",
+    "OE07": "Sociedade (estudante): Apoiar a qualificação de docentes e preceptores",
+    "OE08": "Sociedade (estudante): Qualificar o dimensionamento e a oferta de vagas de residência",
+
+    // Sociedade (pesquisador)
+    "OE09": "Sociedade (pesquisador): Criar ambiente favorável à gestão e à pesquisa em saúde",
+    "OE10": "Sociedade (pesquisador): Contribuir com a estratégia de saúde digital (ex.: AGHU, telessaúde)",
+
+    // Responsabilidade Ambiental, Social e Governança
+    "OE11": "Responsabilidade Ambiental, Social e Governança: Aprimorar a governança corporativa da Rede",
+    "OE12": "Responsabilidade Ambiental, Social e Governança: Promover sustentabilidade ambiental e responsabilidade social",
+    "OE13": "Responsabilidade Ambiental, Social e Governança: Prevenir e enfrentar assédio e discriminação",
+    "OE14": "Responsabilidade Ambiental, Social e Governança: Melhorias em infraestrutura e condições de trabalho",
+
+    // Desenvolvimento Institucional
+    "OE15": "Desenvolvimento Institucional: Atuação integrada dos hospitais em Rede",
+    "OE16": "Desenvolvimento Institucional: Fortalecer o reconhecimento e a imagem pública da Ebserh",
+    "OE17": "Desenvolvimento Institucional: Desenvolver capacidade institucional em gestão hospitalar",
+    "OE18": "Desenvolvimento Institucional: Promover inovação e transformação digital na Rede",
+
+    // Sustentabilidade Financeira
+    "OE19": "Sustentabilidade Financeira: Promover eficiência nos processos de gestão do trabalho",
+    "OE20": "Sustentabilidade Financeira: Ampliar e diversificar as fontes de financiamento",
+    "OE21": "Sustentabilidade Financeira: Aprimorar processos de compras e contratações",
+
+    // Desenvolvimento do Trabalhador
+    "OE22": "Desenvolvimento do Trabalhador: Promover escuta e diálogo permanentes com trabalhadores",
+    "OE23": "Desenvolvimento do Trabalhador: Promover engajamento e valorização dos trabalhadores",
+    "OE24": "Desenvolvimento do Trabalhador: Desenvolver estratégias de educação permanente e continuada"
+  };
+
+  // -----------------------------
+  // 1) Lê dados agregados (oe_count)
+  // -----------------------------
+  var rawCounts = [];
   try {
-    raw = JSON.parse(document.getElementById('oeCountData').textContent || '[]');
+    rawCounts = JSON.parse(document.getElementById('oeCountData').textContent || '[]');
   } catch (e) {
-    raw = [];
+    rawCounts = [];
   }
 
-  // Garante 25 posições (idx 0..24 => OE01..OE25, se você usar todas)
+  // Garante 25 posições (OE01..OE25)
   var counts = Array.from({length: 25}, function (_, i) {
-    var v = Number(raw[i]);
+    var v = Number(rawCounts[i]);
     return Number.isFinite(v) ? v : 0;
   });
 
+  // Labels: OE01..OE25
   var labels = Array.from({length: 25}, function (_, i) {
     return 'OE' + String(i + 1).padStart(2, '0');
   });
 
+  // -----------------------------
+  // 2) Lê o mapa OE -> notícias
+  // -----------------------------
+  var oeNewsMap = {};
+  try {
+    oeNewsMap = JSON.parse(document.getElementById('oeNewsMapData').textContent || '{}');
+  } catch (e) {
+    oeNewsMap = {};
+  }
+
+  // -----------------------------
+  // 3) Função para mostrar lista de notícias
+  // -----------------------------
+  function mostrarNoticiasPorOE(oeLabel) {
+    var card   = document.getElementById('news-list-card');
+    var title  = document.getElementById('news-list-title');
+    var tbody  = document.getElementById('news-list-body');
+    var empty  = document.getElementById('news-list-empty');
+
+    if (!card || !title || !tbody || !empty) return;
+
+    var lista = oeNewsMap[oeLabel] || [];
+
+    // Monta título com descrição do OE
+    var descricao = OE_DESCRICOES[oeLabel] || '';
+    var tituloBase = 'Notícias para ' + oeLabel;
+    if (descricao) {
+      title.textContent = tituloBase + ' – ' + descricao;
+    } else {
+      title.textContent = tituloBase;
+    }
+
+    tbody.innerHTML = '';
+
+    if (!lista.length) {
+      empty.style.display = 'block';
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    lista.forEach(function (noticia, idx) {
+      var url = '/visualizar_noticia/' + (noticia.id || '') + '/';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (idx + 1) + '</td>' +
+        '<td>' + (noticia.source || '') + '</td>' +
+        '<td>' +
+          '<a href="' + url + '">' +
+            (noticia.title || '') +
+          '</a>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // -----------------------------
+  // 4) Monta o gráfico + clique nas barras
+  // -----------------------------
   var ctx = document.getElementById('barChart').getContext('2d');
-  new Chart(ctx, {
+
+  var barChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels,
@@ -262,11 +405,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return ' ' + tooltipItem.yLabel + ' notícia(s)';
           }
         }
+      },
+      // Clique na barra
+      onClick: function (evt, activeElements) {
+        if (!activeElements || !activeElements.length) {
+          return;
+        }
+        // Chart.js 2.x: índice da barra clicada
+        var idx = activeElements[0]._index;
+        var oeLabel = labels[idx];
+        mostrarNoticiasPorOE(oeLabel);
       }
     }
   });
 });
 </script>
+
 
 </body>
 </html>
