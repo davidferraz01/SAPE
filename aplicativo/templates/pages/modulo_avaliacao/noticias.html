@@ -139,7 +139,15 @@
           
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><button onclick=atualizar_noticias() id="cadastrar-campanha" class="btn btn-primary"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg>&nbsp;&nbsp;Atualizar Notícias</button></a></li>             
+              <li class="breadcrumb-item"><button onclick="atualizar_noticias()" id="btn-atualizar-noticias" class="btn btn-primary">
+              <span class="btn-icon">
+                <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                  <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+                </svg>
+              </span>
+              <span class="btn-text">&nbsp;&nbsp;Atualizar Notícias</span>
+            </button>
+            </li>             
             </ol>
           </div><!-- /.col -->
          
@@ -230,6 +238,25 @@
   
 <script>
 async function atualizar_noticias() {
+  const btn = document.getElementById('btn-atualizar-noticias');
+  if (!btn) return;
+
+  // Evita clique duplo
+  if (btn.disabled) return;
+
+  const iconEl = btn.querySelector('.btn-icon');
+  const textEl = btn.querySelector('.btn-text');
+
+  // Guarda estado original
+  const originalIcon = iconEl ? iconEl.innerHTML : '';
+  const originalText = textEl ? textEl.textContent : '';
+
+  // Ativa loading
+  btn.disabled = true;
+  btn.classList.add('disabled');
+  if (iconEl) iconEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  if (textEl) textEl.textContent = ' Carregando...';
+
   try {
     const response = await fetch("{% url 'atualizar_noticias' %}", {
       method: 'POST',
@@ -238,19 +265,31 @@ async function atualizar_noticias() {
       }
     });
 
-    const data = await response.json();
-    if (data.status === "ok") {
+    let data = null;
+    try { data = await response.json(); } catch(_) {}
+
+    if (response.ok && data && data.status === "ok") {
       alert(`${data.novas} novas notícias salvas com sucesso.`);
       location.reload();
-    } else {
-      alert("Erro ao atualizar notícias.");
+      return;
     }
+
+    const msg = (data && (data.detail || data.message)) || "Erro ao atualizar notícias.";
+    alert(msg);
+
   } catch (error) {
     console.error("Erro:", error);
     alert("Erro na requisição.");
+  } finally {
+    // Se não recarregou a página, volta ao normal
+    btn.disabled = false;
+    btn.classList.remove('disabled');
+    if (iconEl) iconEl.innerHTML = originalIcon;
+    if (textEl) textEl.textContent = originalText;
   }
 }
 </script>
+
 
 
 

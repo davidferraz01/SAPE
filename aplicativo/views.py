@@ -171,7 +171,7 @@ def processar_ebserh(root):
                 content=extrair_texto_limpo(content_text),
                 source="EBSERH",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
+                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-"}
             )
             novas += 1
 
@@ -239,8 +239,7 @@ def processar_uol(root):
                     "pilar": "Classificação ainda não foi gerada.",
                     "objetivo_codigo": "",
                     "objetivo_titulo": "-",
-                    "justificativa": "-",
-                    "confianca": "-",
+                    "justificativa": "-"
                 },
             )
             novas += 1
@@ -279,7 +278,7 @@ def processar_g1(root):
                 content=content_text,
                 source="G1",
                 important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
+                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-"}
             )
             novas += 1
 
@@ -295,6 +294,12 @@ def gerar_indicadores(request, id):
 
     texto_para_analisar = noticia.content
     titulo = noticia.title
+
+    cls = noticia.classification
+    
+    if cls and cls.get("pilar") != "Classificação ainda não foi gerada.":
+        messages.success(request, "Indicadores já foram gerados.")
+        return JsonResponse({"status": "ok"})
 
     classificacao = classificar_noticia(titulo,texto_para_analisar)
 

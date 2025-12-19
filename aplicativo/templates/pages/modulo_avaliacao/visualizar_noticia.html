@@ -7,47 +7,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SAPE</title>
 
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{% static 'css/visualizar_campanha.css' %}">
 
-
-  <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
-  <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- Tempusdominus Bootstrap 4 -->
   <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
-  <!-- iCheck -->
   <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
-  <!-- JQVMap -->
   <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}">
-  <!-- Theme style -->
   <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
-  <!-- overlayScrollbars -->
   <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
-
-
-  <!-- summernote -->
   <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
   <link rel="icon" href="{% static  'images/sape-icon.png' %}">
 
+  <style>
+    body.pdf-export #div-campanha .table-responsive { overflow: visible !important; }
+    body.pdf-export #div-campanha table { width: 100% !important; table-layout: fixed !important; }
+    body.pdf-export #div-campanha th,
+    body.pdf-export #div-campanha td {
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: anywhere !important;
+    }
+    body.pdf-export #div-campanha td.justificativa-cell { white-space: pre-wrap !important; }
+    body.pdf-export #div-campanha .card { break-inside: avoid; page-break-inside: avoid; }
+
+    .btn-sape {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      padding: .55rem .9rem;
+      border-radius: .35rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      box-shadow: 0 1px 2px rgba(0,0,0,.08);
+      transition: filter .15s ease, transform .05s ease;
+      min-height: 38px;
+    }
+    .btn-sape:active { transform: translateY(1px); }
+    .btn-sape .btn-icon { display: inline-flex; align-items: center; }
+    .btn-sape .btn-text { display: inline-flex; align-items: center; }
+
+    .btn-sape-ai {
+      background: #1f6feb;
+      border-color: #1f6feb;
+      color: #fff;
+    }
+    .btn-sape-ai:hover { filter: brightness(0.95); color: #fff; }
+
+    .btn-sape-cloud {
+      background: #1f9d55;
+      border-color: #1f9d55;
+      color: #fff;
+    }
+    .btn-sape-cloud:hover { filter: brightness(0.95); color: #fff; }
+
+    .btn-sape-export {
+      background: #6f42c1;
+      border-color: #6f42c1;
+      color: #fff;
+    }
+    .btn-sape-export:hover { filter: brightness(0.95); color: #fff; }
+
+    .btn-sape-back{
+      background:#6c757d;
+      border-color:#6c757d;
+      color:#fff;
+    }
+    .btn-sape-back:hover{ filter:brightness(.95); color:#fff; }
+
+    .btn-sape .icone-branco,
+    .btn-sape i { color: #fff; }
+
+    .button-container{
+      padding-top: 14px;
+      padding-bottom: 20px;
+      background: transparent;
+      border: 0;
+    }
+
+    .sape-actions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .sape-actions-left,
+    .sape-actions-right{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .sape-actions a{
+      display:inline-flex;
+      align-items:center;
+      text-decoration:none;
+    }
+
+    .sape-actions .float-left,
+    .sape-actions .float-right{
+      float:none !important;
+    }
+  </style>
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
     <img class="animation__shake" src="{% static  'images/sape-icon.png' %}" alt="SAPE-logo" height="60px" width="60px">
   </div>
 
-  <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
@@ -57,230 +136,213 @@
       </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-
-      <!-- fullscreen -->
       <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
         </a>
       </li>
-       
-
     </ul>
-
   </nav>
-  <!-- /.navbar -->
 
-  <!-- Main Sidebar Container -->
   {% include 'partials/menu_lateral.html' %}
 
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
             <div id="title-header">
-            <h1 id="title-header" class="m-0">Visualizar Notícia</h1>
+              <h1 id="title-header" class="m-0">Visualizar Notícia</h1>
             </div>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- /.content-header -->
 
-
-    <!-- Main content -->
     <section class="content">
       <div class="container-fluid" id="div-campanha">
+
         <div class="row tabela">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Notícia: {{ noticia.title }}</h3>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>Link</th>
-                                    <th>Data de Publicação</th>
-                                    <th>Fonte</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="white-space: pre-wrap;">{{ noticia.link }}</td>
-                                    <td>{{ noticia.pub_date }}</td>
-                                    <td>{{ noticia.source }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Notícia: {{ noticia.title }}</h3>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Link</th>
+                      <th>Data de Publicação</th>
+                      <th>Fonte</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="white-space: pre-wrap;">{{ noticia.link }}</td>
+                      <td>{{ noticia.pub_date }}</td>
+                      <td>{{ noticia.source }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
         </div>
 
         <div class="row tabela">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Conteúdo</h3>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>Descrição</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="white-space: pre-wrap; word-wrap: break-word;">{{ noticia.description }}</td>
-                            </tbody>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Conteúdo</h3>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr><th>Descrição</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="white-space: pre-wrap; word-wrap: break-word;">{{ noticia.description }}</td>
+                    </tr>
+                  </tbody>
 
-                            <thead>
-                                <tr>
-                                    <th>Texto da notícia</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="white-space: pre-wrap; word-wrap: break-word;">{{ noticia.content }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                  <thead>
+                    <tr><th>Texto da notícia</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="white-space: pre-wrap; word-wrap: break-word;">{{ noticia.content }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
         </div>
 
         <div class="row tabela">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Estatísticas</h3>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>Nuvem de Palavras</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{{ noticia.important_words }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Estatísticas</h3>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr><th>Nuvem de Palavras</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>{{ noticia.important_words }}</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
         </div>
 
         <div class="row tabela">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Classificação</h3>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                                <tr>
-                                    <th>Pilar</th>
-                                    <th>Objetivo</th>
-                                    <th>Justificativa</th>
-                                    <th>Confiança</th>
-                                </tr> 
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>{{ noticia.classification.pilar }}</td>
-                                    <td>{{ noticia.classification.objetivo_codigo }} {{ noticia.classification.objetivo_titulo }}</td>
-                                    <td>{{ noticia.classification.justificativa }}</td>
-                                    <td>{{ noticia.classification.confianca }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Classificação</h3>
+              </div>
+              <div class="card-body table-responsive p-0">
+                <table class="table table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Pilar</th>
+                      <th>Objetivo</th>
+                      <th>Justificativa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ noticia.classification.pilar }}</td>
+                      <td>{{ noticia.classification.objetivo_codigo }} {{ noticia.classification.objetivo_titulo }}</td>
+                      <td class="justificativa-cell">{{ noticia.classification.justificativa }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
         </div>
 
-     </div>
-      <!-- /. container-fluid -->
+      </div>
 
       <div class="card-footer button-container">
-        <div class="row">
-
-          <div class="col-sm-12 col-md-auto">
+        <div class="sape-actions">
+          <div class="sape-actions-left">
             <a href="/noticias/">
-              <button id="botao-voltar" class="btn btn-info float-left"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>&nbsp;&nbsp;Voltar</button>
+              <button id="botao-voltar" class="btn-sape btn-sape-back" type="button">
+                <span class="btn-icon">
+                  <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                    <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+                  </svg>
+                </span>
+                <span class="btn-text">&nbsp;&nbsp;Voltar</span>
+              </button>
             </a>
           </div>
 
-          <div class="col-sm-12 col-md">
-            <button onclick=gerar_nuvem_palavras() id="botao-cadastrar_doacao" class="btn btn-info float-right" style="margin-right: 15px;"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 216C0 149.7 53.7 96 120 96l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72zm256 0c0-66.3 53.7-120 120-120l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72z"/></svg>&nbsp;&nbsp;Gerar Nuvem de Palavras</button>
+          <div class="sape-actions-right">
+            <button onclick="gerar_nuvem_palavras()" id="btn-gerar-nuvem" class="btn-sape btn-sape-cloud" type="button">
+              <span class="btn-icon">
+                <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                  <path d="M0 216C0 149.7 53.7 96 120 96l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72zm256 0c0-66.3 53.7-120 120-120l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-32 0-32 0-72z"/>
+                </svg>
+              </span>
+              <span class="btn-text">&nbsp;&nbsp;Gerar Nuvem de Palavras</span>
+            </button>
 
-            <button onclick=gerar_indicadores() id="botao-cadastrar_doacao" class="btn btn-info float-right" style="margin-right: 15px;"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c-35.3 0-64 28.7-64 64l-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0 35.3 28.7 64 64 64l0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40c35.3 0 64-28.7 64-64l40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0c0-35.3-28.7-64-64-64l0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40zM160 128l192 0c17.7 0 32 14.3 32 32l0 192c0 17.7-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32l0-192c0-17.7 14.3-32 32-32zm192 32l-192 0 0 192 192 0 0-192z"/></svg>&nbsp;&nbsp;Gerar Indicadores com IA</button>
-            <button id="botao-exportar" class="btn btn-info float-right" onclick="exportarCampanha('{{noticia.title}}')" style="margin-right: 15px;"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-167l80 80c9.4 9.4 24.6 9.4 33.9 0l80-80c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-39 39V184c0-13.3-10.7-24-24-24s-24 10.7-24 24V318.1l-39-39c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9z"/></svg>&nbsp;&nbsp;Exportar</button>
+            <button onclick="gerar_indicadores()" id="btn-gerar-indicadores" class="btn-sape btn-sape-ai" type="button">
+              <span class="btn-icon">
+                <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                  <path d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c-35.3 0-64 28.7-64 64l-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0 35.3 28.7 64 64 64l0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40c35.3 0 64-28.7 64-64l40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0-24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0-24-10.7 24-24s-10.7-24-24-24l-40 0c0-35.3-28.7-64-64-64l0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40zM160 128l192 0c17.7 0 32 14.3 32 32l0 192c0 17.7-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32l0-192c0-17.7 14.3-32 32-32zm192 32l-192 0 0 192 192 0 0-192z"/>
+                </svg>
+              </span>
+              <span class="btn-text">&nbsp;&nbsp;Gerar Indicadores com IA</span>
+            </button>
+
+            <button id="btn-exportar" class="btn-sape btn-sape-export" type="button" onclick="exportarCampanha('{{noticia.title}}')">
+              <span class="btn-icon">
+                <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512">
+                  <path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-167l80 80c9.4 9.4 24.6 9.4 33.9 0l80-80c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-39 39V184c0-13.3-10.7-24-24-24s-24 10.7-24 24V318.1l-39-39c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9z"/>
+                </svg>
+              </span>
+              <span class="btn-text">&nbsp;&nbsp;Exportar</span>
+            </button>
           </div>
         </div>
       </div>
 
     </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
- <!-- /version do sistema -->
- {% include 'footer_version.html' %}
-</div>
-<!-- ./wrapper -->
 
-<!-- jQuery -->
+  {% include 'footer_version.html' %}
+</div>
+
 <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
-<!-- jQuery UI 1.11.4 -->
 <script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
-<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<script>
-  $.widget.bridge('uibutton', $.ui.button)
-</script>
-<!-- Bootstrap 4 -->
+<script> $.widget.bridge('uibutton', $.ui.button) </script>
 <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-<!-- ChartJS -->
 <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
-<!-- Sparkline -->
 <script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
-<!-- JQVMap -->
 <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
 <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
-<!-- jQuery Knob Chart -->
 <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
-<!-- daterangepicker -->
 <script src="{% static 'plugins/moment/moment.min.js' %}"></script>
 <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
-<!-- Tempusdominus Bootstrap 4 -->
 <script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
-<!-- Summernote -->
 <script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
-<!-- overlayScrollbars -->
 <script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
-<!-- AdminLTE App -->
 <script src="{% static '/dist/js/adminlte.js' %}"></script>
-<!-- Menu Lateral -->
 <script src="{% static 'js/menu_lateral.js' %}"></script>
 
-<!-- html2pdf -->
 <script src="{% static 'plugins/html2pdf/html2pdf.bundle.min.js' %}"></script>
-<!-- jsPDF -->
-
-<!-- dom-to-image -->
-<script src="{%static 'plugins/dom-to-image/dom-to-image.min.js' %}"></script>
-<!-- Exportar análise-->
+<script src="{% static 'plugins/dom-to-image/dom-to-image.min.js' %}"></script>
 <script src="{% static 'js/exportar_campanha.js' %}"></script>
 
 <script>
@@ -288,51 +350,125 @@
 </script>
 
 <script>
-async function gerar_nuvem_palavras() {
-  try {
-    const response = await fetch("{% url 'atualizar_important_words' noticia.id %}", {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
-    });
+(function () {
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    const data = await response.json();
-    if (data.status === "ok") {
-      alert(`Nuvem de palavras geradas com sucesso.`);
-      location.reload();
-    } else {
-      alert("Erro ao gerar nuvem de palavras.");
-    }
-  } catch (error) {
-    console.error("Erro:", error);
-    alert("Erro na requisição.");
-  }
-}
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.exportarCampanha !== 'function') return;
+
+    const original = window.exportarCampanha;
+
+    window.exportarCampanha = async function (titulo) {
+      document.body.classList.add('pdf-export');
+      await sleep(80);
+
+      try {
+        const ret = original(titulo);
+        if (ret && typeof ret.then === 'function') await ret;
+        else await sleep(1500);
+        return ret;
+      } finally {
+        document.body.classList.remove('pdf-export');
+      }
+    };
+  });
+})();
 </script>
 
 <script>
-async function gerar_indicadores() {
+function setLoading(btnId, isLoading, loadingText) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return null;
+
+  if (isLoading) {
+    if (btn.disabled) return null;
+
+    const iconEl = btn.querySelector('.btn-icon');
+    const textEl = btn.querySelector('.btn-text');
+
+    btn.dataset.originalIcon = iconEl ? iconEl.innerHTML : '';
+    btn.dataset.originalText = textEl ? textEl.textContent : '';
+
+    btn.disabled = true;
+    btn.classList.add('disabled');
+    if (iconEl) iconEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    if (textEl) textEl.textContent = ` ${loadingText || 'Carregando...'} `;
+    return btn;
+  } else {
+    const iconEl = btn.querySelector('.btn-icon');
+    const textEl = btn.querySelector('.btn-text');
+
+    btn.disabled = false;
+    btn.classList.remove('disabled');
+    if (iconEl) iconEl.innerHTML = btn.dataset.originalIcon || iconEl.innerHTML;
+    if (textEl) textEl.textContent = btn.dataset.originalText || textEl.textContent;
+    return btn;
+  }
+}
+
+async function gerar_nuvem_palavras() {
+  const btn = setLoading('btn-gerar-nuvem', true, 'Carregando...');
+  if (!btn) return;
+
   try {
-    const response = await fetch("{% url 'gerar_indicadores' noticia.id %}", {
+    const response = await fetch("{% url 'atualizar_important_words' noticia.id %}", {
       method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' }
     });
 
-    const data = await response.json();
-    if (data.status === "ok") {
-      alert(`Indicadores gerados com sucesso.`);
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+
+    if (response.ok && data && data.status === "ok") {
+      alert('Nuvem de palavras geradas com sucesso.');
       location.reload();
-    } else {
-      alert("Erro ao gerar Indicadores.");
+      return;
     }
+    alert((data && (data.message || data.detail)) || "Erro ao gerar nuvem de palavras.");
   } catch (error) {
     console.error("Erro:", error);
     alert("Erro na requisição.");
+  } finally {
+    setLoading('btn-gerar-nuvem', false);
   }
 }
+
+async function gerar_indicadores() {
+  const btn = setLoading('btn-gerar-indicadores', true, 'Carregando...');
+  if (!btn) return;
+
+  try {
+    const response = await fetch("{% url 'gerar_indicadores' noticia.id %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    });
+
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+
+    if (response.ok && data && data.status === "ok") {
+      alert('Indicadores gerados com sucesso.');
+      location.reload();
+      return;
+    }
+    alert((data && (data.message || data.detail)) || "Erro ao gerar Indicadores.");
+  } catch (error) {
+    console.error("Erro:", error);
+    alert("Erro na requisição.");
+  } finally {
+    setLoading('btn-gerar-indicadores', false);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('btn-exportar');
+  if (!btn) return;
+
+  btn.addEventListener('click', function () {
+    setLoading('btn-exportar', true, 'Gerando PDF...');
+    setTimeout(() => setLoading('btn-exportar', false), 4000);
+  }, { capture: true });
+});
 </script>
 
 </body>
