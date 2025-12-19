@@ -33,3 +33,4 @@ class Dashboard(models.Model):
     initial_date = models.DateField()
     final_date = models.DateField()
     oe_news_map = models.JSONField(default=dict, blank=True)
+    sources = models.JSONField(default=list, blank=True)

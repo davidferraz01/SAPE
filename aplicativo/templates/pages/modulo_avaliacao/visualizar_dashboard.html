@@ -99,6 +99,15 @@
               {{ dashboard.description }}
             </p>
 
+            <p class="mb-1">
+              <strong>Fontes:</strong>
+              {% if dashboard.sources %}
+                {{ dashboard.sources|join:", " }}
+              {% else %}
+                Todas
+              {% endif %}
+            </p>
+
             <p class="mb-0">
               <strong>Período:</strong>
               {{ dashboard.initial_date|date:"d/m/Y" }}

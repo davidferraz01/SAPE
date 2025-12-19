@@ -387,16 +387,44 @@ def classificar_noticia(titulo, noticia):
 @csrf_exempt
 @login_required
 @require_POST
-def novo_dashboard(request, initial_date, final_date, name, description):
+def novo_dashboard(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"status": "error", "detail": "JSON inválido."}, status=400)
+
+    title = (data.get("title") or "").strip()
+    description = (data.get("description") or "").strip()
+    initial_date = data.get("initial_date")
+    final_date = data.get("final_date")
+    sources = data.get("sources") or []
+
+    if not title:
+        return JsonResponse({"status": "error", "detail": "Informe o título."}, status=400)
+    if not description:
+        return JsonResponse({"status": "error", "detail": "Informe a descrição."}, status=400)
+    if not initial_date or not final_date:
+        return JsonResponse({"status": "error", "detail": "Informe as datas."}, status=400)
+    if initial_date > final_date:
+        return JsonResponse({"status": "error", "detail": "A data inicial não pode ser maior que a data final."}, status=400)
+
+    # garante lista de strings
+    if not isinstance(sources, list):
+        sources = []
+    sources = [str(s).strip() for s in sources if str(s).strip()]
+
     Dashboard.objects.create(
-        title = name,
-        description = description,
-        initial_date = initial_date,
-        final_date = final_date,
-        oe_count = []
+        title=title,
+        description=description,
+        initial_date=initial_date,
+        final_date=final_date,
+        sources=sources,
+        oe_count=[],
+        oe_news_map={}
     )
 
-    return JsonResponse({"status": "ok", "title": name})
+    return JsonResponse({"status": "ok", "title": title})
+
 
 @login_required
 def visualizar_dashboard(request, id):
@@ -412,11 +440,22 @@ def visualizar_dashboard(request, id):
 @login_required
 def pagina_monitoramento(request):
     if request.method == 'GET':
-        dashboards = Dashboard.objects.order_by('-id')  # Ordenando pelo mais recente
+        dashboards = Dashboard.objects.order_by('-id')
 
-        context = {'dashboards': dashboards}
+        fontes = (
+            News.objects.exclude(source__isnull=True)
+            .exclude(source__exact="")
+            .values_list("source", flat=True)
+            .distinct()
+            .order_by("source")
+        )
 
+        context = {
+            'dashboards': dashboards,
+            'fontes': list(fontes),
+        }
         return render(request, 'pages/modulo_avaliacao/monitoramento.html', context)
+
 
 def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
     """
@@ -438,35 +477,29 @@ def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
 @login_required
 @require_POST
 def atualizar_dashboard(request, id):
-    """
-    Atualiza o Dashboard usando TODAS as notícias
-    cuja pub_date está entre initial_date e final_date
-    definidos no próprio Dashboard.
-
-    Preenche:
-      - oe_count: lista de contagens por OE
-      - oe_news_map: dict "OE01" -> [ { id, title, link, pub_date, source }, ... ]
-    """
     _OE_MAX = 25
     dashboard = get_object_or_404(Dashboard, id=id)
     initial = dashboard.initial_date
     final = dashboard.final_date
+    sources = dashboard.sources or []
 
-    # 1) Gera/atualiza indicadores para todas as notícias do período
-    news_ids = News.objects.filter(
-        pub_date__range=(initial, final)
-    ).values_list("id", flat=True)
+    news_filter = {
+        "pub_date__range": (initial, final),
+    }
+    if sources:
+        news_filter["source__in"] = sources
+
+    news_ids = News.objects.filter(**news_filter).values_list("id", flat=True)
 
     for nid in news_ids.iterator():
         gerar_indicadores(request, nid)
-        print("indicador gerado", nid)
+        print("Indicador Gerado:",nid)
 
-    # 2) Reconta objetivos e monta o mapa de notícias por OE
     counts = [0] * _OE_MAX
     oe_news_map: dict[str, list[dict]] = {}
 
     qs = News.objects.filter(
-        pub_date__range=(initial, final),
+        **news_filter,
         classification__isnull=False
     ).only("id", "title", "link", "pub_date", "source", "classification")
 
@@ -474,26 +507,17 @@ def atualizar_dashboard(request, id):
         cls = n.classification or {}
         obj_codigo = cls.get("objetivo_codigo")
         idx = _objetivo_codigo_para_index(obj_codigo)
-
         if idx is None:
             continue
 
-        # Atualiza contagem
         counts[idx] += 1
-
-        # Monta chave "OE01", "OE02", ...
         oe_key = f"OE{idx + 1:02d}"
-
-        if oe_key not in oe_news_map:
-            oe_news_map[oe_key] = []
-
-        oe_news_map[oe_key].append({
+        oe_news_map.setdefault(oe_key, []).append({
             "id": n.id,
             "title": n.title,
             "source": n.source,
         })
 
-    # 3) Salva/atualiza o dashboard
     dashboard.oe_count = counts
     dashboard.oe_news_map = oe_news_map
     dashboard.save(update_fields=["oe_count", "oe_news_map"])
