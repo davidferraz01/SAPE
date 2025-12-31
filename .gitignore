@@ -5,6 +5,7 @@ aplicativo/__pycache__/
 aplicativo/migrations/__pycache__/
 auth_app/__pycache__/
 SAPE/settings/__pycache__/
+SAPE/__pycache__/
 aplicativo/services/__pycache__/
 db.sqlite3
 start.sh
