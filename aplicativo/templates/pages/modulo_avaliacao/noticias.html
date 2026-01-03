@@ -84,7 +84,32 @@
             </form>
           </div>
         </li>
-        
+
+        <!-- Filtros -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link"
+            href="#"
+            id="filtroMenu"
+            role="button"
+            data-toggle="dropdown"
+            data-offset="0,8"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="filtroMenuLista">
+            <i class="fas fa-filter"></i>
+          </a>
+
+          <div class="dropdown-menu dropdown-menu-right" id="filtroMenuLista" aria-labelledby="filtroMenu">
+            <span class="dropdown-item-text text-muted small">Filtrar por Fonte</span>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">EBSERH</a>
+            <a href="#" class="dropdown-item">G1</a>
+            <a href="#" class="dropdown-item">UOL</a>
+          </div>
+        </li>
+
+
   
         <!-- fullscreen -->
         <li class="nav-item d-none d-sm-inline-block">
@@ -108,13 +133,21 @@
         <div class="row mb-2">
           <div class="col-sm-6">
             <div id="title-header">
-            <h1 id="title-header" class="m-0">Dashboards</h1>
+            <h1 id="title-header" class="m-0">Notícias</h1>
             </div>
           </div><!-- /.col -->
           
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><button onclick=novo_dashboard() id="cadastrar-campanha" class="btn btn-primary"><svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg>&nbsp;&nbsp;Novo Dashboard</button></a></li>             
+              <li class="breadcrumb-item"><button onclick="atualizar_noticias()" id="btn-atualizar-noticias" class="btn btn-primary">
+              <span class="btn-icon">
+                <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                  <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>
+                </svg>
+              </span>
+              <span class="btn-text">&nbsp;&nbsp;Atualizar Notícias</span>
+            </button>
+            </li>             
             </ol>
           </div><!-- /.col -->
          
@@ -127,16 +160,17 @@
       <section class="content">
         <div class="grid-pai">
           <div id="flex-container">
-            {% for dashboard in dashboards %}
-            <div class="flex-item campanha-{{ dashboard.id }}">
-                <a class="item" href="/preview_dashboard/{{ dashboard.id }}/">
+            {% for noticia in noticias %}
+            <div class="flex-item campanha-{{ noticia.id }}">
+                <a class="item" href="/visualizar_noticia/{{ noticia.id }}/">
                     <div class="info">
                         <label>Título</label> 
-                        <p id="titulo" class="dado">{{ dashboard.title }}</p>
-                        <label>Descrição</label>
-                        <p id="descricao" class="dado">{{ dashboard.description }}</p>
+                        <p id="titulo" class="dado">{{ noticia.title }}</p>
+                        <label>Fonte</label>
+                        <p id="fonte" class="dado">{{noticia.source}}</p>
                     </div>
                 </a>
+  
             </div>
             {% endfor %}
         </div>
@@ -144,9 +178,11 @@
         </div>
         <div class="centered-div" id="no-cadastros" style="display: none;">
           <!-- Div centralizada para "Não há cadastros" -->
-          <p>Nenhum Dashboard criado.</p>
+          <p>Não há novas Notícias.</p>
         </div>
       </section>
+      
+  
     
       <!-- /.content -->
     </div>
@@ -188,152 +224,76 @@
   <script src="{% static '/dist/js/adminlte.js' %}"></script>
   <!-- Toastr -->
   <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+
+
   <!-- Menu Lateral -->
   <script src="{% static 'js/menu_lateral.js' %}"></script>
   <script>
-   active_menu_doar()
+   active_menu_noticias()
   </script>
   
   <script src="{% static 'js/filtros.js' %}"></script>
-  <script src="{% static 'js/animacao_dropdown.js' %}"></script>
+  <!-- <script src="{% static 'js/animacao_dropdown.js' %}"></script> -->
   <script src="{% static 'js/minhas_campanhas.js' %}"></script>
   
 <script>
-  // Cria o modal apenas uma vez
-  function ensureNovoDashboardModal() {
-    if (document.getElementById('modalNovoDashboard')) return;
+async function atualizar_noticias() {
+  const btn = document.getElementById('btn-atualizar-noticias');
+  if (!btn) return;
 
-    const modalHtml = `
-<div class="modal fade" id="modalNovoDashboard" tabindex="-1" role="dialog" aria-labelledby="modalNovoDashboardLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalNovoDashboardLabel">Novo Dashboard</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+  // Evita clique duplo
+  if (btn.disabled) return;
 
-      <div class="modal-body">
-        <form id="formNovoDashboard">
-          <div class="form-group">
-            <label for="nd_titulo">Título</label>
-            <input type="text" class="form-control" id="nd_titulo" placeholder="Ex.: Dashboard de Setembro">
-          </div>
+  const iconEl = btn.querySelector('.btn-icon');
+  const textEl = btn.querySelector('.btn-text');
 
-          <div class="form-group">
-            <label for="nd_descricao">Descrição</label>
-            <textarea class="form-control" id="nd_descricao" rows="3" placeholder="Breve descrição do dashboard"></textarea>
-          </div>
+  // Guarda estado original
+  const originalIcon = iconEl ? iconEl.innerHTML : '';
+  const originalText = textEl ? textEl.textContent : '';
 
-          <div class="form-group">
-            <label for="nd_mes">Mês</label>
-            <select class="form-control" id="nd_mes">
-              <option value="" selected disabled>Selecione o mês</option>
-              <option value="1">01 - Janeiro</option>
-              <option value="2">02 - Fevereiro</option>
-              <option value="3">03 - Março</option>
-              <option value="4">04 - Abril</option>
-              <option value="5">05 - Maio</option>
-              <option value="6">06 - Junho</option>
-              <option value="7">07 - Julho</option>
-              <option value="8">08 - Agosto</option>
-              <option value="9">09 - Setembro</option>
-              <option value="10">10 - Outubro</option>
-              <option value="11">11 - Novembro</option>
-              <option value="12">12 - Dezembro</option>
-            </select>
-            <small class="form-text text-muted">O backend espera o número do mês (1–12).</small>
-          </div>
-        </form>
-        <div id="nd_alert" class="alert alert-danger d-none mb-0" role="alert"></div>
-      </div>
+  // Ativa loading
+  btn.disabled = true;
+  btn.classList.add('disabled');
+  if (iconEl) iconEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  if (textEl) textEl.textContent = ' Carregando...';
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button id="nd_confirmar" type="button" class="btn btn-primary">
-          <i class="fas fa-plus mr-1"></i> Criar Dashboard
-        </button>
-      </div>
-    </div>
-  </div>
-</div>`;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    // Handler do botão "Criar Dashboard"
-    document.getElementById('nd_confirmar').addEventListener('click', async function () {
-      const titulo = document.getElementById('nd_titulo').value.trim();
-      const descricao = document.getElementById('nd_descricao').value.trim();
-      const mesStr = document.getElementById('nd_mes').value;
-
-      const alertBox = document.getElementById('nd_alert');
-      const showError = (msg) => { alertBox.textContent = msg; alertBox.classList.remove('d-none'); };
-      const hideError = () => { alertBox.textContent = ''; alertBox.classList.add('d-none'); };
-
-      hideError();
-
-      if (!titulo) return showError('Informe o título.');
-      if (!descricao) return showError('Informe a descrição.');
-      if (!mesStr) return showError('Selecione o mês (1–12).');
-
-      const mes = parseInt(mesStr, 10);
-      if (isNaN(mes) || mes < 1 || mes > 12) return showError('Mês inválido. Escolha entre 1 e 12.');
-
-      // Sanitiza para uso em path e codifica
-      const sanitizeForPath = (s) => encodeURIComponent(s.replace(/[\/\\]/g, '-'));
-      const nameEnc = sanitizeForPath(titulo);
-      const descEnc = sanitizeForPath(descricao);
-
-      // Monta path conforme rota:
-      // path('novo-dashboard/<int:month>/<str:name>/<str:description>/', novo_dashboard, name='novo_dashboard')
-      const url = `/novo-dashboard/${mes}/${nameEnc}/${descEnc}/`;
-
-      try {
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
-        });
-
-        if (!resp.ok) {
-          // tenta extrair mensagem do backend
-          let msg = 'Erro ao criar dashboard.';
-          try {
-            const err = await resp.json();
-            if (err && err.detail) msg = err.detail;
-          } catch(_) {}
-          alert(msg);
-          return;
-        }
-
-        const data = await resp.json();
-        if (data.status === "ok") {
-          // opcional: fechar modal
-          $('#modalNovoDashboard').modal('hide');
-          alert(`${data.title} criado com sucesso.`);
-          location.reload();
-        } else {
-          alert(data.message || "Erro ao criar Dashboard.");
-        }
-      } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro na requisição.");
+  try {
+    const response = await fetch("{% url 'atualizar_noticias' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
       }
     });
-  }
 
-  // Função chamada no botão
-  async function novo_dashboard() {
-    ensureNovoDashboardModal();
-    $('#modalNovoDashboard').modal('show');
-    $('#modalNovoDashboard').on('shown.bs.modal', function () {
-      document.getElementById('nd_titulo').focus();
-    });
+    let data = null;
+    try { data = await response.json(); } catch(_) {}
+
+    if (response.ok && data && data.status === "ok") {
+      alert(`${data.novas} novas notícias salvas com sucesso.`);
+      location.reload();
+      return;
+    }
+
+    const msg = (data && (data.detail || data.message)) || "Erro ao atualizar notícias.";
+    alert(msg);
+
+  } catch (error) {
+    console.error("Erro:", error);
+    alert("Erro na requisição.");
+  } finally {
+    // Se não recarregou a página, volta ao normal
+    btn.disabled = false;
+    btn.classList.remove('disabled');
+    if (iconEl) iconEl.innerHTML = originalIcon;
+    if (textEl) textEl.textContent = originalText;
   }
+}
 </script>
+
+
 
 
 </body>
 
 </html>
+

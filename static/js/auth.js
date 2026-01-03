@@ -36,7 +36,7 @@ function auth(){
             if(next_url){
               window.location.href = next_url
             }else{
-              window.location.href = '/doar/'
+              window.location.href = '/noticias/'
             }
           }else{
             toastr.error('Email ou senha inválidos.')

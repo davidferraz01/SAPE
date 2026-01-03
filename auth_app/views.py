@@ -19,7 +19,7 @@ def init(request):
 
 @csrf_exempt
 def tela_login(request):
-        return render(request, 'pages/default/login.html')
+    return render(request, 'pages/default/login.html')
 
 class Login(LoginView):
     template_name = 'pages/default/login.html'
@@ -69,6 +69,23 @@ def cadastrar_usuario(request):
             # Verificar se já existe um usuário com o mesmo email
             if Usuario.objects.filter(email=data["email"]).exists():
                 return JsonResponse({"status": 400, "message": "Este e-mail já está cadastrado."})
+            
+            # Verificar senha
+            senha = data.get("senha")
+            if len(senha) < 8:
+                return JsonResponse({"status": 404, "message": "A senha deve conter entre 8 e 12 caracteres."})
+
+            # Pelo menos uma letra maiúscula
+            if not re.search(r'[A-Z]', senha):
+                return JsonResponse({"status": 404, "message": "A senha deve conter pelo menos uma letra maiúscula."})
+
+            # Pelo menos uma letra minúscula
+            if not re.search(r'[a-z]', senha):
+                return JsonResponse({"status": 404, "message": "A senha deve conter pelo menos uma letra minúscula."})
+
+            # Pelo menos um número
+            if not re.search(r'[0-9]', senha):
+                return JsonResponse({"status": 404, "message": "A senha deve conter pelo menos um número."})
 
             # Criar um novo usuário
             usuario = Usuario(

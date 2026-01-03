@@ -1,58 +1,132 @@
-window.addEventListener('DOMContentLoaded', (event) => {
-  sincronizarFiltros();
-});
+// static/js/filtros.js
+(function ($) {
+  const $menu = $('#filtroMenuLista');            // dropdown-menu
+  const $cards = $('.flex-item');                 // cards (notícias ou dashboards)
+  const $noData = $('#no-cadastros');             // aviso "sem registros"
+  const selected = new Set();                     // fontes selecionadas (normalizadas)
 
-function sincronizarFiltros() {
-  // Obtém os elementos de filtro
-  const filtroPesquisa = document.getElementById('pesquisar');
-  const botaoLimpar = document.getElementById('limpar-input');
+  // Se não tem menu de filtro, só integra busca
+  if (!$menu.length) {
+    $('#pesquisar').on('input', applyFilters);
+    applyFilters();
+    return;
+  }
 
-  // Obtém todas as divs que serão filtradas
-  const divs = document.getElementsByClassName('flex-item');
+  // Detecta página de notícias (tem #fonte nos cards)
+  const isNewsPage = $cards.find('#fonte').length > 0;
 
-  // Adiciona os event listeners para cada filtro
-  filtroPesquisa.addEventListener('keyup', aplicarFiltros);
-  botaoLimpar.addEventListener('click', clearInput);
+  // >>> IMPORTANTE <<<
+  // Se você tem dashboards antigos (antes do recurso) com sources vazio,
+  // e NÃO quer que eles apareçam quando houver filtro selecionado,
+  // deixe false. (recomendado pelo seu caso)
+  const EMPTY_SOURCES_MATCHES_ALL = false;
 
-  // Função para aplicar os filtros
-  function aplicarFiltros() {
-    // Obtém os valores selecionados nos filtros
-    const valorFiltroPesquisa = filtroPesquisa.value;
+  const norm = (s) => (s || '').toString().trim().toLowerCase();
 
-    // Percorre todas as divs
-    for (let i = 0; i < divs.length; i++) {
-      const div = divs[i];
+  function getCardSources($card) {
+    if (isNewsPage) {
+      const v = ($card.find('#fonte').text() || '').trim();
+      return v ? [norm(v)] : [];
+    }
 
-      // Verifica se a div atende aos critérios de filtro
-      const atendeFiltroPesquisa = valorFiltroPesquisa === '' || div.querySelector('p#titulo').textContent.toLowerCase().includes(valorFiltroPesquisa.toLowerCase());
+    // Dashboards: data-sources="A|B|C"
+    const raw = ($card.attr('data-sources') || '').toString().trim();
+    if (!raw) return []; // vazio => dashboard antigo/sem fontes definidas
+    return raw.split('|').map(norm).filter(Boolean);
+  }
 
-      // Define a visibilidade da div com base nos filtros
-      if ( atendeFiltroPesquisa ) {
-        div.style.display = 'block';
+  function applyFilters() {
+    const q = norm($('#pesquisar').val());
+    let anyVisible = false;
+
+    $cards.each(function () {
+      const $c = $(this);
+
+      const title = norm($c.find('#titulo').text());
+      const desc = norm($c.find('#descricao').text());
+      const sources = getCardSources($c); // array normalizado
+
+      // --- Fonte ---
+      let matchSource = true;
+
+      if (selected.size > 0) {
+        if (isNewsPage) {
+          // Notícias: OR
+          matchSource = sources.some(s => selected.has(s));
+        } else {
+          // Dashboards: AND (tem que ter TODAS)
+          if (sources.length === 0) {
+            matchSource = EMPTY_SOURCES_MATCHES_ALL;
+          } else {
+            matchSource = Array.from(selected).every(sel => sources.includes(sel));
+          }
+        }
+      }
+
+      // --- Texto (pesquisa) ---
+      const sourcesText = sources.join(' ');
+      const matchText = !q || title.includes(q) || desc.includes(q) || sourcesText.includes(q);
+
+      if (matchSource && matchText) {
+        $c.show();
+        anyVisible = true;
       } else {
-        div.style.display = 'none';
+        $c.hide();
+      }
+    });
+
+    $noData.toggle(!anyVisible);
+    updateBadge();
+  }
+
+  // Mantém o dropdown aberto ao clicar dentro
+  $menu.on('click', function (e) {
+    e.stopPropagation();
+  });
+
+  // Alterna seleção
+  $menu.on('click', 'a.dropdown-item', function (e) {
+    e.preventDefault();
+
+    const $a = $(this);
+    const label = ($a.text() || '').trim();
+    const key = norm(label);
+    if (!key) return;
+
+    if (selected.has(key)) {
+      selected.delete(key);
+      $a.removeClass('active').find('.check').remove();
+    } else {
+      selected.add(key);
+      $a.addClass('active');
+      if (!$a.find('.check').length) {
+        $a.prepend('<i class="fas fa-check check mr-2"></i>');
       }
     }
 
-    existe_cadastro();
+    applyFilters();
+  });
+
+  function updateBadge() {
+    const count = selected.size;
+    const $btn = $('#filtroMenu');
+
+    if (!$btn.length) return;
+
+    $btn.attr('aria-label', count ? `Filtros (${count})` : 'Filtros');
+
+    let $badge = $btn.find('.filter-badge');
+    if (!$badge.length) {
+      $badge = $('<span class="filter-badge badge badge-primary ml-1" style="vertical-align: middle;"></span>');
+      $btn.append($badge);
+    }
+
+    if (count) $badge.text(count).show();
+    else $badge.hide();
   }
 
-  // Limpa o valor do input e aplica os filtros
-  function clearInput() {
-    filtroPesquisa.value = '';
-    aplicarFiltros();
-  }
+  $('#pesquisar').on('input', applyFilters);
 
-  aplicarFiltros();
-}
-
-function existe_cadastro() {
-  const itens = $('.flex-item');
-  if (itens.length === 0 || itens.filter(':visible').length === 0) {
-    // Mostra a div centralizada caso não haja elementos
-    $('#no-cadastros').show();
-  } else {
-    // Esconde a div centralizada caso haja elementos visíveis
-    $('#no-cadastros').hide();
-  }
-}
+  // Inicial
+  applyFilters();
+})(jQuery);

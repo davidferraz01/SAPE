@@ -1,0 +1,443 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAPE</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/visualizar_campanha.css' %}">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
+  <link rel="icon" href="{% static  'images/sape-icon.png' %}">
+
+  <style>
+    .btn-sape{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.35rem;
+      padding:.55rem .9rem;
+      border-radius:.35rem;
+      font-weight:600;
+      border:1px solid transparent;
+      box-shadow:0 1px 2px rgba(0,0,0,.08);
+      transition:filter .15s ease, transform .05s ease;
+      min-height:38px;
+    }
+    .btn-sape:active{ transform: translateY(1px); }
+    .btn-sape .btn-icon{ display:inline-flex; align-items:center; }
+    .btn-sape .btn-text{ display:inline-flex; align-items:center; }
+
+    .btn-sape-ai{
+      background:#1f6feb;
+      border-color:#1f6feb;
+      color:#fff;
+    }
+    .btn-sape-ai:hover{ filter:brightness(.95); color:#fff; }
+
+    .btn-sape-back{
+      background:#6c757d;
+      border-color:#6c757d;
+      color:#fff;
+    }
+    .btn-sape-back:hover{ filter:brightness(.95); color:#fff; }
+
+    .btn-sape .icone-branco,
+    .btn-sape i{ color:#fff; }
+
+    .sape-actions{
+      padding-top: 6px !important;
+      padding-bottom: 18px !important;
+      margin-bottom: 10px !important;
+    }
+    .sape-actions .row{
+      align-items: center;
+    }
+    .sape-actions .btn-sape{
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Preloader -->
+  <div class="preloader flex-column justify-content-center align-items-center">
+    <img class="animation__shake" src="{% static  'images/sape-icon.png' %}" alt="SAPE-logo" height="60px" width="60px">
+  </div>
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="/noticias/" class="nav-link">Inicio</a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+          <i class="fas fa-expand-arrows-alt"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  {% include 'partials/menu_lateral.html' %}
+
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <div id="title-header">
+              <h1 id="title-header" class="m-0">Visualizar Dashboard</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+
+        <div class="card card-success">
+          <div class="card-header d-flex flex-column align-items-start">
+            <h3 class="card-title mb-2">
+              <strong>{{ dashboard.title }}</strong>
+            </h3>
+
+            <p class="mb-1">
+              <strong>Descrição:</strong>
+              {{ dashboard.description }}
+            </p>
+
+            <p class="mb-1">
+              <strong>Fontes:</strong>
+              {% if dashboard.sources %}
+                {{ dashboard.sources|join:", " }}
+              {% else %}
+                Todas
+              {% endif %}
+            </p>
+
+            <p class="mb-0">
+              <strong>Período:</strong>
+              {{ dashboard.initial_date|date:"d/m/Y" }}
+              &nbsp;até&nbsp;
+              {{ dashboard.final_date|date:"d/m/Y" }}
+            </p>
+          </div>
+
+          <div class="card-body">
+            <div class="chart">
+              <canvas id="barChart"
+                      style="min-height:250px;height:550px;max-height:650px;max-width:100%;">
+              </canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="news-list-card" class="card mt-3" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" id="news-list-title">Notícias</h3>
+          </div>
+          <div class="card-body">
+            <p id="news-list-empty" class="text-muted mb-2">
+              Nenhuma notícia encontrada para esta classificação.
+            </p>
+            <div class="table-responsive">
+              <table class="table table-sm table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Fonte</th>
+                    <th>Título</th>
+                  </tr>
+                </thead>
+                <tbody id="news-list-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer button-container mt-3 border-0 sape-actions" style="background: transparent;">
+          <div class="row">
+
+            <div class="col-sm-12 col-md-auto d-flex align-items-center">
+              <a href="/monitoramento/" class="d-inline-block">
+                <button id="botao-voltar" class="btn-sape btn-sape-back">
+                  <span class="btn-icon">
+                    <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
+                      <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+                    </svg>
+                  </span>
+                  <span class="btn-text">&nbsp;&nbsp;Voltar</span>
+                </button>
+              </a>
+            </div>
+
+            <div class="col-sm-12 col-md d-flex justify-content-md-end align-items-center">
+              <button onclick="gerar_indicadores()" id="btn-gerar-indicadores"
+                      class="btn-sape btn-sape-ai mr-md-2">
+                <span class="btn-icon">
+                  <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                    <path d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c-35.3 0-64 28.7-64 64l-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0 35.3 28.7 64 64 64l0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40c35.3 0 64-28.7 64-64l40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-40 0 0-56 40 0c13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0-35.3-28.7-64-64-64l0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40zM160 128l192 0c17.7 0 32 14.3 32 32l0 192c0 17.7-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32l0-192c0-17.7 14.3-32 32-32zm192 32l-192 0 0 192 192 0 0-192z"/>
+                  </svg>
+                </span>
+                <span class="btn-text">&nbsp;&nbsp;Gerar Indicadores com IA</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  {% include 'footer_version.html' %}
+</div>
+
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+<script> $.widget.bridge('uibutton', $.ui.button) </script>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+<script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+<script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+<script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<script src="{% static '/dist/js/adminlte.js' %}"></script>
+<script src="{% static 'js/menu_lateral.js' %}"></script>
+<script src="{% static 'plugins/html2pdf/html2pdf.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/dom-to-image/dom-to-image.min.js' %}"></script>
+<script src="{% static 'js/exportar_campanha.js' %}"></script>
+
+<script>
+  active_menu_monitoramento();
+</script>
+
+{% url 'atualizar_dashboard' dashboard.id as atualizar_url %}
+
+<script>
+function setLoading(btnId, isLoading, loadingText) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return null;
+
+  if (isLoading) {
+    if (btn.disabled) return null;
+
+    const iconEl = btn.querySelector('.btn-icon');
+    const textEl = btn.querySelector('.btn-text');
+
+    btn.dataset.originalIcon = iconEl ? iconEl.innerHTML : '';
+    btn.dataset.originalText = textEl ? textEl.textContent : '';
+
+    btn.disabled = true;
+    btn.classList.add('disabled');
+    if (iconEl) iconEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    if (textEl) textEl.textContent = ` ${loadingText || 'Carregando...'} `;
+    return btn;
+  } else {
+    const iconEl = btn.querySelector('.btn-icon');
+    const textEl = btn.querySelector('.btn-text');
+
+    btn.disabled = false;
+    btn.classList.remove('disabled');
+    if (iconEl) iconEl.innerHTML = btn.dataset.originalIcon || iconEl.innerHTML;
+    if (textEl) textEl.textContent = btn.dataset.originalText || textEl.textContent;
+    return btn;
+  }
+}
+
+async function gerar_indicadores() {
+  const btn = setLoading('btn-gerar-indicadores', true, 'Carregando...');
+  if (!btn) return;
+
+  try {
+    const response = await fetch("{{ atualizar_url }}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    });
+
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+
+    if (response.ok && data && data.status === "ok") {
+      alert('Indicadores gerados com sucesso.');
+      location.reload();
+      return;
+    }
+
+    alert((data && (data.message || data.detail)) || "Erro ao gerar Indicadores.");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erro na requisição.");
+  } finally {
+    setLoading('btn-gerar-indicadores', false);
+  }
+}
+</script>
+
+{{ dashboard.oe_count|default:"[]"|json_script:"oeCountData" }}
+{{ oe_news_map|default:"{}"|json_script:"oeNewsMapData" }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof Chart === 'undefined') {
+    console.error('Chart.js não carregado');
+    return;
+  }
+
+  var OE_DESCRICOES = {
+    "OE01": "Sociedade (usuário SUS): Ampliar e qualificar a participação dos hospitais na rede de atenção à saúde do SUS",
+    "OE02": "Sociedade (usuário SUS): Qualificar o cuidado hospitalar",
+    "OE03": "Sociedade (usuário SUS): Ampliar e qualificar a participação na rede nacional de cuidados oncológicos",
+    "OE04": "Sociedade (usuário SUS): Participar da implementação da Política Nacional de Atenção Especializada e do esforço de redução de filas",
+    "OE25": "Sociedade (usuário SUS): Educação e informação em saúde para a população",
+    "OE05": "Sociedade (estudante): Aprimorar as condições de ensino e os cenários de prática",
+    "OE06": "Sociedade (estudante): Consolidar o Exame Nacional de Residência (Enare) como forma prioritária de ingresso",
+    "OE07": "Sociedade (estudante): Apoiar a qualificação de docentes e preceptores",
+    "OE08": "Sociedade (estudante): Qualificar o dimensionamento e a oferta de vagas de residência",
+    "OE09": "Sociedade (pesquisador): Criar ambiente favorável à gestão e à pesquisa em saúde",
+    "OE10": "Sociedade (pesquisador): Contribuir com a estratégia de saúde digital (ex.: AGHU, telessaúde)",
+    "OE11": "Responsabilidade Ambiental, Social e Governança: Aprimorar a governança corporativa da Rede",
+    "OE12": "Responsabilidade Ambiental, Social e Governança: Promover sustentabilidade ambiental e responsabilidade social",
+    "OE13": "Responsabilidade Ambiental, Social e Governança: Prevenir e enfrentar assédio e discriminação",
+    "OE14": "Responsabilidade Ambiental, Social e Governança: Melhorias em infraestrutura e condições de trabalho",
+    "OE15": "Desenvolvimento Institucional: Atuação integrada dos hospitais em Rede",
+    "OE16": "Desenvolvimento Institucional: Fortalecer o reconhecimento e a imagem pública da Ebserh",
+    "OE17": "Desenvolvimento Institucional: Desenvolver capacidade institucional em gestão hospitalar",
+    "OE18": "Desenvolvimento Institucional: Promover inovação e transformação digital na Rede",
+    "OE19": "Sustentabilidade Financeira: Promover eficiência nos processos de gestão do trabalho",
+    "OE20": "Sustentabilidade Financeira: Ampliar e diversificar as fontes de financiamento",
+    "OE21": "Sustentabilidade Financeira: Aprimorar processos de compras e contratações",
+    "OE22": "Desenvolvimento do Trabalhador: Promover escuta e diálogo permanentes com trabalhadores",
+    "OE23": "Desenvolvimento do Trabalhador: Promover engajamento e valorização dos trabalhadores",
+    "OE24": "Desenvolvimento do Trabalhador: Desenvolver estratégias de educação permanente e continuada"
+  };
+
+  var rawCounts = [];
+  try { rawCounts = JSON.parse(document.getElementById('oeCountData').textContent || '[]'); } catch (e) { rawCounts = []; }
+
+  var counts = Array.from({length: 25}, function (_, i) {
+    var v = Number(rawCounts[i]);
+    return Number.isFinite(v) ? v : 0;
+  });
+
+  var labels = Array.from({length: 25}, function (_, i) {
+    return 'OE' + String(i + 1).padStart(2, '0');
+  });
+
+  var oeNewsMap = {};
+  try { oeNewsMap = JSON.parse(document.getElementById('oeNewsMapData').textContent || '{}'); } catch (e) { oeNewsMap = {}; }
+
+  function mostrarNoticiasPorOE(oeLabel) {
+    var card = document.getElementById('news-list-card');
+    var title = document.getElementById('news-list-title');
+    var tbody = document.getElementById('news-list-body');
+    var empty = document.getElementById('news-list-empty');
+    if (!card || !title || !tbody || !empty) return;
+
+    var lista = oeNewsMap[oeLabel] || [];
+    var descricao = OE_DESCRICOES[oeLabel] || '';
+    var tituloBase = 'Notícias para ' + oeLabel;
+    title.textContent = descricao ? (tituloBase + ' – ' + descricao) : tituloBase;
+
+    tbody.innerHTML = '';
+
+    if (!lista.length) {
+      empty.style.display = 'block';
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    lista.forEach(function (noticia, idx) {
+      var url = '/visualizar_noticia/' + (noticia.id || '') + '/';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (idx + 1) + '</td>' +
+        '<td>' + (noticia.source || '') + '</td>' +
+        '<td><a href="' + url + '">' + (noticia.title || '') + '</a></td>';
+      tbody.appendChild(tr);
+    });
+
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  var ctx = document.getElementById('barChart').getContext('2d');
+  var barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Notícias por OE',
+        data: counts,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        yAxes: [{ ticks: { beginAtZero: true, precision: 0 } }],
+        xAxes: [{ ticks: { autoSkip: false } }]
+      },
+      legend: { display: false },
+      tooltips: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return ' ' + tooltipItem.yLabel + ' notícia(s)';
+          }
+        }
+      },
+      onClick: function (evt, activeElements) {
+        if (!activeElements || !activeElements.length) return;
+        var idx = activeElements[0]._index;
+        var oeLabel = labels[idx];
+        mostrarNoticiasPorOE(oeLabel);
+      }
+    }
+  });
+});
+</script>
+
+</body>
+</html>

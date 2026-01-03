@@ -17,6 +17,8 @@ from django.contrib import messages
 from openai import OpenAI
 from django.conf import settings
 import re
+from datetime import date
+from .services.atualizar_noticias_job import atualizar_noticias_job
 
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -84,163 +86,13 @@ def atualizar_important_words(request, id):
     return JsonResponse({"status": "ok"})
 
 
-
-def extrair_texto_limpo(html):
-    # Parse do HTML
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # Remove elementos de script, style, etc, se existirem
-    for tag in soup(['script', 'style']):
-        tag.decompose()
-
-    # Extrai e limpa o texto
-    texto = soup.get_text(separator='\n', strip=True)
-
-    # Remove múltiplas quebras de linha (opcional)
-    linhas = [linha.strip() for linha in texto.splitlines() if linha.strip()]
-    texto_limpo = '\n'.join(linhas)
-
-    return texto_limpo
-
 @csrf_exempt
 @login_required
 @require_POST
 def atualizar_noticias(request):
-    fontes = {
-        "G1": "https://g1.globo.com/rss/g1/",
-        "UOL": "https://rss.uol.com.br/feed/noticias.xml",
-        "EBSERH": "https://www.gov.br/ebserh/pt-br/site-feed/RSS",
-    }
-
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-    novas = 0
-
-    for fonte, url in fontes.items():
-        try:
-            response = requests.get(url, headers=headers)
-            if response.status_code != 200:
-                continue
-
-            content = response.content
-            if fonte == "UOL":
-                content = content.decode("iso-8859-1")
-
-            root = ET.fromstring(content)
-
-            if fonte == "EBSERH":
-                novas += processar_ebserh(root)
-            elif fonte == "UOL":
-                novas += processar_uol(root)
-            elif fonte == "G1":
-                novas += processar_g1(root)
-
-        except Exception as e:
-            print(f"Erro ao processar fonte {fonte}: {e}")
-            continue
-
+    novas = atualizar_noticias_job()
     return JsonResponse({"status": "ok", "novas": novas})
 
-
-def processar_ebserh(root):
-    novas = 0
-    items = root.findall("{http://purl.org/rss/1.0/}item")
-
-    for item in items:
-        title = item.find("{http://purl.org/rss/1.0/}title")
-        link = item.find("{http://purl.org/rss/1.0/}link")
-        description = item.find("{http://purl.org/rss/1.0/}description")
-        pub_date = item.find("{http://purl.org/dc/elements/1.1/}date")
-        content_encoded = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
-
-        title_text = title.text.strip() if title is not None else ""
-        link_text = link.text.strip() if link is not None else ""
-        description_text = description.text.strip() if description is not None else ""
-        pub_date_text = pub_date.text.strip() if pub_date is not None else ""
-        content_text = content_encoded.text.strip() if content_encoded is not None else ""
-
-        if not News.objects.filter(link=link_text).exists():
-            News.objects.create(
-                title=title_text,
-                link=link_text,
-                pub_date=datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ"),
-                month=datetime.now().month,
-                description=extrair_texto_limpo(description_text),
-                content=extrair_texto_limpo(content_text),
-                source="EBSERH",
-                important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
-            )
-            novas += 1
-
-    return novas
-
-
-def processar_uol(root):
-    novas = 0
-    items = root.find("channel").findall("item")
-
-    for item in items:
-        title = item.findtext("title", "").strip()
-        link = item.findtext("link", "").strip()
-        pub_date_raw = item.findtext("pubDate", "").strip()
-        description = item.findtext("description", title).strip()
-
-        if not News.objects.filter(link=link).exists():
-            pub_date = parser.parse(pub_date_raw).replace(tzinfo=None)
-
-            News.objects.create(
-                title=title,
-                link=link,
-                pub_date=pub_date,
-                month=datetime.now().month,
-                description=extrair_texto_limpo(description),
-                content="",
-                source="UOL",
-                important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
-            )
-            novas += 1
-
-    return novas
-
-
-def processar_g1(root):
-    novas = 0
-    items = root.find("channel").findall("item")
-
-    for item in items:
-        title = item.findtext("title", "").strip()
-        link = item.findtext("link", "").strip()
-        pub_date_raw = item.findtext("pubDate", "").strip()
-
-        # Pega atom:subtitle para description (se existir)
-        atom_subtitle = item.find("{http://www.w3.org/2005/Atom}subtitle")
-        description_text = atom_subtitle.text.strip() if atom_subtitle is not None else ""
-
-        # Pega description HTML para content (removendo img e limpando)
-        description_html = item.findtext("description", "").strip()
-        soup = BeautifulSoup(description_html, "html.parser")
-        if soup.img:
-            soup.img.decompose()  # Remove tag <img>
-        content_text = soup.get_text(separator="\n").strip()
-
-        if not News.objects.filter(link=link).exists():
-            pub_date = parser.parse(pub_date_raw).replace(tzinfo=None)
-
-            News.objects.create(
-                title=title,
-                link=link,
-                pub_date=pub_date,
-                month=datetime.now().month,
-                description=description_text,
-                content=content_text,
-                source="G1",
-                important_words="A Nuvem de Palavras ainda não foi gerada.",
-                classification={"pilar": "Classificação ainda não foi gerada.","objetivo_codigo": "","objetivo_titulo": "-","justificativa": "-","confianca": "-"}
-            )
-            novas += 1
-
-    return novas
 ######
 
 ### Gerar Indicadores ###
@@ -252,6 +104,12 @@ def gerar_indicadores(request, id):
 
     texto_para_analisar = noticia.content
     titulo = noticia.title
+
+    cls = noticia.classification
+    
+    if cls and cls.get("pilar") != "Classificação ainda não foi gerada.":
+        messages.success(request, "Indicadores já foram gerados.")
+        return JsonResponse({"status": "ok"})
 
     classificacao = classificar_noticia(titulo,texto_para_analisar)
 
@@ -281,7 +139,6 @@ def classificar_noticia(titulo, noticia):
     "objetivo_codigo": "<ex.: OE04>",
     "objetivo_titulo": "<título curto do objetivo>",
     "justificativa": "<1 ou 2 frases objetivas indicando os trechos/termos que motivaram a escolha>",
-    "confianca": <número entre 0 e 1>
     }
 
     TAXONOMIA
@@ -341,38 +198,79 @@ def classificar_noticia(titulo, noticia):
     return resp.choices[0].message.content
 ######
 
-### Gerar Dashborad do Mes ###
+### Gerar Dashborad ###
 @csrf_exempt
 @login_required
 @require_POST
-def novo_dashboard(request, month, name, description):
-    MonthDashboard.objects.create(
-        title = name,
-        description = description,
-        month = month,
-        oe_count = []
+def novo_dashboard(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"status": "error", "detail": "JSON inválido."}, status=400)
+
+    title = (data.get("title") or "").strip()
+    description = (data.get("description") or "").strip()
+    initial_date = data.get("initial_date")
+    final_date = data.get("final_date")
+    sources = data.get("sources") or []
+
+    if not title:
+        return JsonResponse({"status": "error", "detail": "Informe o título."}, status=400)
+    if not description:
+        return JsonResponse({"status": "error", "detail": "Informe a descrição."}, status=400)
+    if not initial_date or not final_date:
+        return JsonResponse({"status": "error", "detail": "Informe as datas."}, status=400)
+    if initial_date > final_date:
+        return JsonResponse({"status": "error", "detail": "A data inicial não pode ser maior que a data final."}, status=400)
+
+    # garante lista de strings
+    if not isinstance(sources, list):
+        sources = []
+    sources = [str(s).strip() for s in sources if str(s).strip()]
+
+    Dashboard.objects.create(
+        title=title,
+        description=description,
+        initial_date=initial_date,
+        final_date=final_date,
+        sources=sources,
+        oe_count=[],
+        oe_news_map={}
     )
 
-    return JsonResponse({"status": "ok", "title": name})
+    return JsonResponse({"status": "ok", "title": title})
+
 
 @login_required
-def preview_dashboard(request, id):
-    dashboard = get_object_or_404(MonthDashboard, pk=id)
+def visualizar_dashboard(request, id):
+    dashboard = get_object_or_404(Dashboard, pk=id)
 
     context = {
-        'dashboard': dashboard
+        "dashboard": dashboard,
+        "oe_news_map": dashboard.oe_news_map or {},
     }
+    return render(request, "pages/modulo_avaliacao/visualizar_dashboard.html", context)
 
-    return render(request, 'pages/doacao/visualizar_dashboard.html', context)
 
 @login_required
-def minhas_doacoes(request):
+def pagina_monitoramento(request):
     if request.method == 'GET':
-        dashboards = MonthDashboard.objects.order_by('-id')  # Ordenando pelo mais recente
+        dashboards = Dashboard.objects.order_by('-id')
 
-        context = {'dashboards': dashboards}
+        fontes = (
+            News.objects.exclude(source__isnull=True)
+            .exclude(source__exact="")
+            .values_list("source", flat=True)
+            .distinct()
+            .order_by("source")
+        )
 
-        return render(request, 'pages/doacao/minhas_doacoes.html', context)
+        context = {
+            'dashboards': dashboards,
+            'fontes': list(fontes),
+        }
+        return render(request, 'pages/modulo_avaliacao/monitoramento.html', context)
+
 
 def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
     """
@@ -389,69 +287,79 @@ def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
     n = int(m.group(1))
     return n - 1 if 1 <= n <= _OE_MAX else None
 
+
 @csrf_exempt
 @login_required
 @require_POST
-def atualizar_dashboard_mes(request, id, month):
-    """
-    Para o mês 'YYYY-MM':
-      1) Chama gerar_indicadores(request, id) para cada notícia do mês.
-      2) Soma por classification.objetivo_codigo.
-      3) Salva em MonthDashboard.oe_count como lista de 24 inteiros
-         (idx 0=OE01, ..., idx 23=OE24).
-    Retorna (month, counts).
-    """
+def atualizar_dashboard(request, id):
     _OE_MAX = 25
-    # 1) Gera/atualiza classificação de todas as notícias do mês
-    print(month)
-    #news_ids = News.objects.filter(month=month).values_list("id", flat=True)
-    #for nid in news_ids.iterator():
-    #    gerar_indicadores(request, nid)
-    #    print("indicador gerado")
+    dashboard = get_object_or_404(Dashboard, id=id)
+    initial = dashboard.initial_date
+    final = dashboard.final_date
+    sources = dashboard.sources or []
 
-    # 2) Reconta objetivos do mês
+    news_filter = {
+        "pub_date__range": (initial, final),
+    }
+    if sources:
+        news_filter["source__in"] = sources
+
+    news_ids = News.objects.filter(**news_filter).values_list("id", flat=True)
+
+    for nid in news_ids.iterator():
+        gerar_indicadores(request, nid)
+        print("Indicador Gerado:",nid)
+
     counts = [0] * _OE_MAX
-    qs = News.objects.filter(month=month).values_list("classification", flat=True)
-    for cls in qs.iterator():
-        if not cls:
-            continue
-        try:
-            #idx = _objetivo_codigo_para_index(cls.get("objetivo_codigo"))
-            idx = int(cls.get("objetivo_codigo")[-2:]) - 1
-            if idx is not None:
-                counts[idx] += 1
-        except Exception:
-            # classification inesperada -> ignora
-            print("Erro ao coletar objetivo!")
+    oe_news_map: dict[str, list[dict]] = {}
 
-    # 3) Salva/atualiza o dashboard do mês (sem transaction.atomic)
-    dashboard = get_object_or_404(MonthDashboard, id=id)
+    qs = News.objects.filter(
+        **news_filter,
+        classification__isnull=False
+    ).only("id", "title", "link", "pub_date", "source", "classification")
+
+    for n in qs.iterator():
+        cls = n.classification or {}
+        obj_codigo = cls.get("objetivo_codigo")
+        idx = _objetivo_codigo_para_index(obj_codigo)
+        if idx is None:
+            continue
+
+        counts[idx] += 1
+        oe_key = f"OE{idx + 1:02d}"
+        oe_news_map.setdefault(oe_key, []).append({
+            "id": n.id,
+            "title": n.title,
+            "source": n.source,
+        })
+
     dashboard.oe_count = counts
-    dashboard.save()
+    dashboard.oe_news_map = oe_news_map
+    dashboard.save(update_fields=["oe_count", "oe_news_map"])
 
     return JsonResponse({"status": "ok"})
 ######
 
 # Doacao
 @login_required
-def doar(request):
+def pagina_noticias(request):
     if request.method == 'GET':
         noticias = News.objects.order_by('-id')  # Ordenando pela mais recente
 
         context = {'noticias': noticias}
 
-        return render(request, 'pages/doacao/avaliacao_noticias.html', context)
+        return render(request, 'pages/modulo_avaliacao/noticias.html', context)
 
 
 @login_required
-def visualizar_campanha_doar(request, id):
+def visualizar_noticia(request, id):
     noticia = get_object_or_404(News, pk=id)
 
     context = {
         'noticia': noticia
     }
 
-    return render(request, 'pages/doacao/visualizar_noticia.html', context)
+    return render(request, 'pages/modulo_avaliacao/visualizar_noticia.html', context)
 
 
 @login_required
@@ -460,7 +368,7 @@ def cadastrar_doacao(request, id):
 
     context = {'campanha': campanha}
 
-    return render(request, 'pages/doacao/cadastrar_doacao.html', context)
+    return render(request, 'pages/modulo_avaliacao/cadastrar_doacao.html', context)
 
 
 @login_required
