@@ -6,24 +6,18 @@ from .models import *
 from rolepermissions.decorators import has_permission_decorator
 import json
 from auth_app.models import Usuario
-from bs4 import BeautifulSoup
-from datetime import datetime
-import requests
-import xml.etree.ElementTree as ET
 from django.views.decorators.http import require_POST
-from dateutil import parser
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from openai import OpenAI
-from django.conf import settings
 import re
-from datetime import date
-from .services.atualizar_noticias_job import atualizar_noticias_job
-
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import string
+from celery.result import AsyncResult
+from .tasks import atualizar_dashboard_task
+from .tasks import atualizar_noticias_task
 
 @csrf_exempt
 def home(request):
@@ -85,13 +79,13 @@ def atualizar_important_words(request, id):
     messages.success(request, "Nuvem de Palavras geradas com sucesso.")
     return JsonResponse({"status": "ok"})
 
-
 @csrf_exempt
 @login_required
 @require_POST
-def atualizar_noticias(request):
-    novas = atualizar_noticias_job()
-    return JsonResponse({"status": "ok", "novas": novas})
+def iniciar_atualizacao_noticias(request):
+    task = atualizar_noticias_task.delay()
+    return JsonResponse({"task_id": task.id})
+
 
 ######
 
@@ -286,6 +280,34 @@ def _objetivo_codigo_para_index(obj_codigo: str) -> int | None:
         return None
     n = int(m.group(1))
     return n - 1 if 1 <= n <= _OE_MAX else None
+
+@csrf_exempt
+@login_required
+@require_POST
+def iniciar_atualizacao_dashboard(request, id):
+    task = atualizar_dashboard_task.delay(int(id))
+    return JsonResponse({"status": "queued", "task_id": task.id})
+
+def status_task(request, task_id):
+    r = AsyncResult(task_id)
+
+    payload = {"state": r.state}
+
+    info = r.info if isinstance(r.info, dict) else {}
+    # quando estiver PROGRESS, r.info = meta
+    payload.update({
+        "current": info.get("current"),
+        "total": info.get("total"),
+        "percent": info.get("percent"),
+    })
+
+    if r.failed():
+        payload["error"] = str(r.result)
+
+    if r.successful():
+        payload["result"] = r.result
+
+    return JsonResponse(payload)
 
 
 @csrf_exempt

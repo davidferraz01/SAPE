@@ -30,7 +30,7 @@ urlpatterns = [
     # Noticias
     path('noticias/', pagina_noticias, name='noticias'),
     path('visualizar_noticia/<int:id>/', visualizar_noticia, name='visualizar_noticia'),
-    path('atualizar-noticias/', atualizar_noticias, name='atualizar_noticias'),
+    path("noticias/atualizar/iniciar/", iniciar_atualizacao_noticias, name="iniciar_atualizacao_noticias"),
     path('noticia/<int:id>/gerar_nuvens_palavras/', atualizar_important_words, name='atualizar_important_words'),
     path('noticia/<int:id>/atualizar_indicadores/', gerar_indicadores, name='gerar_indicadores'),
 
@@ -39,6 +39,8 @@ urlpatterns = [
     path('noticia/<int:id>/atualizar_dashboard/', atualizar_dashboard, name='atualizar_dashboard'),
     path('visualizar_dashboard/<int:id>/', visualizar_dashboard, name='visualizar_dashboard'),
     path('monitoramento/', pagina_monitoramento, name='dashboards'),
+    path("dashboard/<int:id>/iniciar/", iniciar_atualizacao_dashboard, name="iniciar_atualizacao_dashboard"),
+    path("task/<str:task_id>/status/", status_task, name="status_task"),
 
     # Doacao
     path('cadastrar_doacao_request/', cadastrar_doacao_request, name='cadastrar_doacao_request'),
