@@ -12,3 +12,6 @@ start.sh
 run.sh
 reset.sh
 .env
+docker_up.sh
+docker_down.sh
+docker_stop.sh
