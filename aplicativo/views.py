@@ -18,6 +18,7 @@ import string
 from celery.result import AsyncResult
 from .tasks import atualizar_dashboard_task
 from .tasks import atualizar_noticias_task
+from django.views.decorators.http import require_http_methods
 
 @csrf_exempt
 def home(request):
@@ -192,7 +193,16 @@ def classificar_noticia(titulo, noticia):
     return resp.choices[0].message.content
 ######
 
-### Gerar Dashborad ###
+### Dashborad ###
+@csrf_exempt
+@login_required
+@require_http_methods(["DELETE"])
+def remover_dashboard(request, id):
+    dashboard = get_object_or_404(Dashboard, id=id)
+    dashboard.delete()
+    return JsonResponse({"success": True, "message": "Dashboard removido com sucesso!"})
+
+
 @csrf_exempt
 @login_required
 @require_POST

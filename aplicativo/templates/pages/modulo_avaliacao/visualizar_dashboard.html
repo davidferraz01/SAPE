@@ -55,6 +55,14 @@
     }
     .btn-sape-back:hover{ filter:brightness(.95); color:#fff; }
 
+    /* NOVO: botão vermelho (remover) */
+    .btn-sape-danger{
+      background:#dc3545;
+      border-color:#dc3545;
+      color:#fff;
+    }
+    .btn-sape-danger:hover{ filter:brightness(.95); color:#fff; }
+
     .btn-sape .icone-branco,
     .btn-sape i{ color:#fff; }
 
@@ -181,7 +189,7 @@
 
             <div class="col-sm-12 col-md-auto d-flex align-items-center">
               <a href="/monitoramento/" class="d-inline-block">
-                <button id="botao-voltar" class="btn-sape btn-sape-back">
+                <button id="botao-voltar" class="btn-sape btn-sape-back" type="button">
                   <span class="btn-icon">
                     <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
                       <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
@@ -193,8 +201,20 @@
             </div>
 
             <div class="col-sm-12 col-md d-flex justify-content-md-end align-items-center">
+              <!-- NOVO: URL do endpoint de remoção -->
+              {% url 'remover_dashboard' dashboard.id as remover_dashboard_url %}
+
+              <!-- NOVO: botão remover dashboard -->
+              <button onclick="remover_dashboard()" id="btn-remover-dashboard"
+                      class="btn-sape btn-sape-danger mr-md-2" type="button">
+                <span class="btn-icon">
+                  <i class="fas fa-trash"></i>
+                </span>
+                <span class="btn-text">&nbsp;&nbsp;Remover Dashboard</span>
+              </button>
+
               <button onclick="gerar_indicadores()" id="btn-gerar-indicadores"
-                      class="btn-sape btn-sape-ai mr-md-2">
+                      class="btn-sape btn-sape-ai mr-md-2" type="button">
                 <span class="btn-icon">
                   <svg class="icone-branco" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
                     <path d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40c-35.3 0-64 28.7-64 64l-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0 0 56-40 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0 35.3 28.7 64 64 64l0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40 56 0 0 40c0 13.3 10.7 24 24 24s24-10.7 24-24l0-40c35.3 0 64-28.7 64-64l40 0c13.3 0-24 10.7-24 24s10.7 24 24 24l40 0c0-35.3-28.7-64-64-64l0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40-56 0 0-40zM160 128l192 0c17.7 0 32 14.3 32 32l0 192c0 17.7-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32l0-192c0-17.7 14.3-32 32-32zm192 32l-192 0 0 192 192 0 0-192z"/>
@@ -349,6 +369,32 @@ function startTaskPolling(taskId) {
       // se der erro de rede, não mata o polling; tenta de novo no próximo ciclo
     }
   }, 3000);
+}
+
+/* NOVO: remover dashboard */
+async function remover_dashboard() {
+  const ok = confirm("Tem certeza que deseja remover este dashboard?\nEssa ação não pode ser desfeita.");
+  if (!ok) return;
+
+  try {
+    const resp = await fetch("{{ remover_dashboard_url }}", {
+      method: "DELETE",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    if (resp.ok && data.success) {
+      alert(data.message || "Dashboard removido com sucesso!");
+      window.location.href = "/monitoramento/";
+      return;
+    }
+
+    alert(data.message || "Erro ao remover o dashboard.");
+  } catch (e) {
+    console.error(e);
+    alert("Erro na requisição.");
+  }
 }
 
 async function gerar_indicadores() {

@@ -36,6 +36,7 @@ urlpatterns = [
 
     # Dashboard
     path('novo-dashboard/', novo_dashboard, name='novo_dashboard'),
+    path("dashboard/<int:id>/remover/", remover_dashboard, name="remover_dashboard"),
     path('noticia/<int:id>/atualizar_dashboard/', atualizar_dashboard, name='atualizar_dashboard'),
     path('visualizar_dashboard/<int:id>/', visualizar_dashboard, name='visualizar_dashboard'),
     path('monitoramento/', pagina_monitoramento, name='dashboards'),
