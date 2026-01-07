@@ -20,6 +20,13 @@ function active_menu_monitoramento(){
       });
 }
 
+function active_menu_perfil(){
+    $(document).ready(function() {
+        $('body').addClass('sidebar-mini sidebar-collapse');
+    });
+}
+
+
 function active_menu_minhas_campanhas(){
     $(document).ready(function() {       
         // Adiciona as classes para ativar o menu

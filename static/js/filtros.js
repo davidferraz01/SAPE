@@ -1,24 +1,20 @@
 // static/js/filtros.js
 (function ($) {
-  const $menu = $('#filtroMenuLista');            // dropdown-menu
-  const $cards = $('.flex-item');                 // cards (notícias ou dashboards)
-  const $noData = $('#no-cadastros');             // aviso "sem registros"
-  const selected = new Set();                     // fontes selecionadas (normalizadas)
+  const $menu = $('#filtroMenuLista');
+  const $cards = $('.flex-item');
+  const $noData = $('#no-cadastros');
+  const selected = new Set();
 
-  // Se não tem menu de filtro, só integra busca
+  // 👇 NOVO: badge do total de notícias (se existir na página)
+  const $newsCount = $('#qtd-noticias');
+
   if (!$menu.length) {
     $('#pesquisar').on('input', applyFilters);
     applyFilters();
     return;
   }
 
-  // Detecta página de notícias (tem #fonte nos cards)
   const isNewsPage = $cards.find('#fonte').length > 0;
-
-  // >>> IMPORTANTE <<<
-  // Se você tem dashboards antigos (antes do recurso) com sources vazio,
-  // e NÃO quer que eles apareçam quando houver filtro selecionado,
-  // deixe false. (recomendado pelo seu caso)
   const EMPTY_SOURCES_MATCHES_ALL = false;
 
   const norm = (s) => (s || '').toString().trim().toLowerCase();
@@ -29,32 +25,37 @@
       return v ? [norm(v)] : [];
     }
 
-    // Dashboards: data-sources="A|B|C"
     const raw = ($card.attr('data-sources') || '').toString().trim();
-    if (!raw) return []; // vazio => dashboard antigo/sem fontes definidas
+    if (!raw) return [];
     return raw.split('|').map(norm).filter(Boolean);
+  }
+
+  // 👇 NOVO: atualiza o badge do título
+  function updateNewsCount(count) {
+    if (!$newsCount.length) return;
+    $newsCount.text(count);
   }
 
   function applyFilters() {
     const q = norm($('#pesquisar').val());
     let anyVisible = false;
 
+    // 👇 NOVO
+    let visibleCount = 0;
+
     $cards.each(function () {
       const $c = $(this);
 
       const title = norm($c.find('#titulo').text());
       const desc = norm($c.find('#descricao').text());
-      const sources = getCardSources($c); // array normalizado
+      const sources = getCardSources($c);
 
-      // --- Fonte ---
       let matchSource = true;
 
       if (selected.size > 0) {
         if (isNewsPage) {
-          // Notícias: OR
           matchSource = sources.some(s => selected.has(s));
         } else {
-          // Dashboards: AND (tem que ter TODAS)
           if (sources.length === 0) {
             matchSource = EMPTY_SOURCES_MATCHES_ALL;
           } else {
@@ -63,28 +64,32 @@
         }
       }
 
-      // --- Texto (pesquisa) ---
       const sourcesText = sources.join(' ');
       const matchText = !q || title.includes(q) || desc.includes(q) || sourcesText.includes(q);
 
       if (matchSource && matchText) {
         $c.show();
         anyVisible = true;
+
+        // 👇 NOVO
+        visibleCount += 1;
       } else {
         $c.hide();
       }
     });
 
     $noData.toggle(!anyVisible);
+
+    // 👇 NOVO: atualiza quantidade ao lado de "Notícias"
+    updateNewsCount(visibleCount);
+
     updateBadge();
   }
 
-  // Mantém o dropdown aberto ao clicar dentro
   $menu.on('click', function (e) {
     e.stopPropagation();
   });
 
-  // Alterna seleção
   $menu.on('click', 'a.dropdown-item', function (e) {
     e.preventDefault();
 
@@ -110,7 +115,6 @@
   function updateBadge() {
     const count = selected.size;
     const $btn = $('#filtroMenu');
-
     if (!$btn.length) return;
 
     $btn.attr('aria-label', count ? `Filtros (${count})` : 'Filtros');
@@ -127,6 +131,5 @@
 
   $('#pesquisar').on('input', applyFilters);
 
-  // Inicial
   applyFilters();
 })(jQuery);
