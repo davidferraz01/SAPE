@@ -55,7 +55,6 @@
     }
     .btn-sape-back:hover{ filter:brightness(.95); color:#fff; }
 
-    /* NOVO: botão vermelho (remover) */
     .btn-sape-danger{
       background:#dc3545;
       border-color:#dc3545;
@@ -158,6 +157,11 @@
                       style="min-height:250px;height:550px;max-height:650px;max-width:100%;">
               </canvas>
             </div>
+
+            <!-- ✅ MOVIDO: contador abaixo do gráfico, alinhado à esquerda -->
+            <div class="mt-2 text-left">
+              <span id="dashboard-news-count" class="badge badge-secondary" style="font-size:.85rem;"></span>
+            </div>
           </div>
         </div>
 
@@ -201,10 +205,8 @@
             </div>
 
             <div class="col-sm-12 col-md d-flex justify-content-md-end align-items-center">
-              <!-- NOVO: URL do endpoint de remoção -->
               {% url 'remover_dashboard' dashboard.id as remover_dashboard_url %}
 
-              <!-- NOVO: botão remover dashboard -->
               <button onclick="remover_dashboard()" id="btn-remover-dashboard"
                       class="btn-sape btn-sape-danger mr-md-2" type="button">
                 <span class="btn-icon">
@@ -226,14 +228,12 @@
 
           </div>
 
-          <!-- PROGRESSO -->
           <div id="progress-wrap" style="display:none; margin-top:10px;">
             <div style="height:10px; background:#e9ecef; border-radius:6px; overflow:hidden;">
               <div id="progress-bar" style="height:10px; width:0%; background:#1f6feb;"></div>
             </div>
             <small id="progress-text" class="text-muted"></small>
           </div>
-          <!-- /PROGRESSO -->
 
         </div>
 
@@ -365,13 +365,10 @@ function startTaskPolling(taskId) {
         return;
       }
 
-    } catch (e) {
-      // se der erro de rede, não mata o polling; tenta de novo no próximo ciclo
-    }
+    } catch (e) {}
   }, 3000);
 }
 
-/* NOVO: remover dashboard */
 async function remover_dashboard() {
   const ok = confirm("Tem certeza que deseja remover este dashboard?\nEssa ação não pode ser desfeita.");
   if (!ok) return;
@@ -427,9 +424,7 @@ async function gerar_indicadores() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const savedTaskId = localStorage.getItem("dashboard_task_{{ dashboard.id }}");
-  if (savedTaskId) {
-    startTaskPolling(savedTaskId);
-  }
+  if (savedTaskId) startTaskPolling(savedTaskId);
 });
 </script>
 
@@ -471,17 +466,94 @@ document.addEventListener('DOMContentLoaded', function () {
     "OE24": "Desenvolvimento do Trabalhador: Desenvolver estratégias de educação permanente e continuada"
   };
 
+  var PILAR_COLORS = {
+    "Sociedade (usuário SUS)": "#dc3545",
+    "Sociedade (estudante)": "#fd7e14",
+    "Sociedade (pesquisador)": "#6f42c1",
+    "Responsabilidade Ambiental, Social e Governança": "#20c997",
+    "Desenvolvimento Institucional": "#0d6efd",
+    "Sustentabilidade Financeira": "#198754",
+    "Desenvolvimento do Trabalhador": "#6c757d"
+  };
+
+  var PILAR_ORDER = [
+    "Sociedade (usuário SUS)",
+    "Sociedade (estudante)",
+    "Sociedade (pesquisador)",
+    "Responsabilidade Ambiental, Social e Governança",
+    "Desenvolvimento Institucional",
+    "Sustentabilidade Financeira",
+    "Desenvolvimento do Trabalhador"
+  ];
+
+  function getPilarFromDescricao(desc) {
+    if (!desc) return "";
+    var parts = String(desc).split(":");
+    return (parts[0] || "").trim();
+  }
+
+  function oeNum(oe) {
+    var m = String(oe || "").match(/(\d{1,2})/);
+    return m ? parseInt(m[1], 10) : 999;
+  }
+
   var rawCounts = [];
   try { rawCounts = JSON.parse(document.getElementById('oeCountData').textContent || '[]'); } catch (e) { rawCounts = []; }
 
-  var counts = Array.from({length: 25}, function (_, i) {
+  var baseLabels = Array.from({length: 25}, function (_, i) {
+    return 'OE' + String(i + 1).padStart(2, '0');
+  });
+
+  var baseCounts = Array.from({length: 25}, function (_, i) {
     var v = Number(rawCounts[i]);
     return Number.isFinite(v) ? v : 0;
   });
 
-  var labels = Array.from({length: 25}, function (_, i) {
-    return 'OE' + String(i + 1).padStart(2, '0');
+  var oeToPilar = {};
+  baseLabels.forEach(function (oe) {
+    oeToPilar[oe] = getPilarFromDescricao(OE_DESCRICOES[oe] || "");
   });
+
+  var items = baseLabels.map(function (oe, i) {
+    var p = oeToPilar[oe] || "";
+    var ord = PILAR_ORDER.indexOf(p);
+    if (ord < 0) ord = 999;
+    var c = PILAR_COLORS[p] || "#adb5bd";
+    return { oe: oe, count: baseCounts[i], pilar: p, pOrder: ord, n: oeNum(oe), color: c };
+  });
+
+  items.sort(function (a, b) {
+    if (a.pOrder !== b.pOrder) return a.pOrder - b.pOrder;
+    return a.n - b.n;
+  });
+
+  var MASTER = {
+    labels: items.map(function (x) { return x.oe; }),
+    data: items.map(function (x) { return x.count; }),
+    colors: items.map(function (x) { return x.color; }),
+    pillars: items.map(function (x) { return x.pilar; })
+  };
+
+  var totalsByPilar = {};
+  MASTER.labels.forEach(function (_, idx) {
+    var p = MASTER.pillars[idx] || "";
+    totalsByPilar[p] = (totalsByPilar[p] || 0) + (Number(MASTER.data[idx]) || 0);
+  });
+
+  function totalAll() {
+    return MASTER.data.reduce(function (acc, v) { return acc + (Number(v) || 0); }, 0);
+  }
+
+  var countEl = document.getElementById('dashboard-news-count');
+  function updateCountBadge(activePilar) {
+    if (!countEl) return;
+    if (activePilar) {
+      var n = totalsByPilar[activePilar] || 0;
+      countEl.textContent = 'Notícias – ' + activePilar + ': ' + n;
+    } else {
+      countEl.textContent = 'Total de notícias no dashboard: ' + totalAll();
+    }
+  }
 
   var oeNewsMap = {};
   try { oeNewsMap = JSON.parse(document.getElementById('oeNewsMapData').textContent || '{}'); } catch (e) { oeNewsMap = {}; }
@@ -523,15 +595,85 @@ document.addEventListener('DOMContentLoaded', function () {
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  var activePilar = null;
+  var barChart = null;
+
+  // ✅ Evita barras “gigantes” quando filtra (cap de espessura)
+  // (não fixa a espessura; só limita o máximo)
+  var BAR_STYLE = {
+    categoryPercentage: 0.80,
+    barPercentage: 0.65,
+    maxBarThickness: 26
+  };
+
+  function applyPilarFilter(pilar) {
+    if (!barChart) return;
+
+    if (!pilar) {
+      barChart.data.labels = MASTER.labels.slice();
+      barChart.data.datasets[0].data = MASTER.data.slice();
+      barChart.data.datasets[0].backgroundColor = MASTER.colors.slice();
+      barChart.data.datasets[0].borderColor = MASTER.colors.slice();
+    } else {
+      var flabels = [];
+      var fdata = [];
+      var fcolors = [];
+
+      for (var i = 0; i < MASTER.labels.length; i++) {
+        if (MASTER.pillars[i] === pilar) {
+          flabels.push(MASTER.labels[i]);
+          fdata.push(MASTER.data[i]);
+          fcolors.push(MASTER.colors[i]);
+        }
+      }
+
+      barChart.data.labels = flabels;
+      barChart.data.datasets[0].data = fdata;
+      barChart.data.datasets[0].backgroundColor = fcolors;
+      barChart.data.datasets[0].borderColor = fcolors;
+    }
+
+    updateCountBadge(activePilar);
+    barChart.update();
+  }
+
+  function uniquePillarsInOrder() {
+    var used = {};
+    MASTER.pillars.forEach(function (p) { if (p) used[p] = true; });
+
+    var out = [];
+    PILAR_ORDER.forEach(function (p) {
+      if (used[p]) out.push(p);
+    });
+
+    Object.keys(used).forEach(function (p) {
+      if (PILAR_ORDER.indexOf(p) === -1) out.push(p);
+    });
+
+    return out;
+  }
+
+  var PILARS_PRESENT = uniquePillarsInOrder();
+
+  // Inicializa contador
+  updateCountBadge(null);
+
   var ctx = document.getElementById('barChart').getContext('2d');
-  var barChart = new Chart(ctx, {
+  barChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: labels,
+      labels: MASTER.labels.slice(),
       datasets: [{
         label: 'Notícias por OE',
-        data: counts,
-        borderWidth: 1
+        data: MASTER.data.slice(),
+        backgroundColor: MASTER.colors.slice(),
+        borderColor: MASTER.colors.slice(),
+        borderWidth: 1,
+
+        // ✅ aplica estilo de barras (cap de tamanho)
+        categoryPercentage: BAR_STYLE.categoryPercentage,
+        barPercentage: BAR_STYLE.barPercentage,
+        maxBarThickness: BAR_STYLE.maxBarThickness
       }]
     },
     options: {
@@ -541,18 +683,60 @@ document.addEventListener('DOMContentLoaded', function () {
         yAxes: [{ ticks: { beginAtZero: true, precision: 0 } }],
         xAxes: [{ ticks: { autoSkip: false } }]
       },
-      legend: { display: false },
+
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          boxWidth: 12,
+          generateLabels: function(chart) {
+            return PILARS_PRESENT.map(function(p) {
+              var isHidden = !!(activePilar && activePilar !== p);
+              return {
+                text: p,
+                fillStyle: PILAR_COLORS[p] || "#adb5bd",
+                strokeStyle: PILAR_COLORS[p] || "#adb5bd",
+                lineWidth: 0,
+                hidden: isHidden,
+                pilar: p
+              };
+            });
+          }
+        },
+
+        // ✅ cursor “pointer” no hover da legenda (mostra que é clicável)
+        onHover: function(e, legendItem) {
+          var canvas = (e && e.native && e.native.target) ? e.native.target : (e && e.target ? e.target : null);
+          if (canvas) canvas.style.cursor = legendItem ? 'pointer' : 'default';
+        },
+        onLeave: function(e) {
+          var canvas = (e && e.native && e.native.target) ? e.native.target : (e && e.target ? e.target : null);
+          if (canvas) canvas.style.cursor = 'default';
+        },
+
+        onClick: function(e, legendItem) {
+          var clicked = legendItem.pilar || legendItem.text;
+          activePilar = (activePilar === clicked) ? null : clicked;
+          applyPilarFilter(activePilar);
+        }
+      },
+
       tooltips: {
         callbacks: {
-          label: function (tooltipItem) {
-            return ' ' + tooltipItem.yLabel + ' notícia(s)';
+          label: function (tooltipItem, data) {
+            var idx = tooltipItem.index;
+            var oe = data.labels[idx];
+            var pilar = oeToPilar[oe] || '';
+            return ' ' + tooltipItem.yLabel + ' notícia(s)' + (pilar ? (' — ' + pilar) : '');
           }
         }
       },
+
       onClick: function (evt, activeElements) {
         if (!activeElements || !activeElements.length) return;
         var idx = activeElements[0]._index;
-        var oeLabel = labels[idx];
+        var oeLabel = this.data.labels[idx];
+        if (!oeLabel) return;
         mostrarNoticiasPorOE(oeLabel);
       }
     }
