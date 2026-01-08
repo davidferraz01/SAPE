@@ -483,14 +483,15 @@ def atualizar_noticias_job() -> int:
                     continue
 
                 if fonte == "UOL":
-                    xml_text = decode_xml_bytes(
-                        resp.content,
-                        preferred=["iso-8859-1", "windows-1252", "utf-8"],
-                        hint=getattr(resp, "encoding", None),
-                    )
-                    root = ET.fromstring(xml_text)
-                    items = extrair_itens_uol(root)
-                    novas_total += _bulk_insert_news("UOL", items, session=session, headers=headers)
+                    pass
+                    #xml_text = decode_xml_bytes(
+                    #    resp.content,
+                    #    preferred=["iso-8859-1", "windows-1252", "utf-8"],
+                    #    hint=getattr(resp, "encoding", None),
+                    #)
+                    #root = ET.fromstring(xml_text)
+                    #items = extrair_itens_uol(root)
+                    #novas_total += _bulk_insert_news("UOL", items, session=session, headers=headers)
                 else:
                     xml_text = decode_xml_bytes(resp.content, hint=getattr(resp, "encoding", None))
                     root = ET.fromstring(xml_text)
@@ -499,8 +500,9 @@ def atualizar_noticias_job() -> int:
                         items = extrair_itens_ebserh(root)
                         novas_total += _bulk_insert_news("EBSERH", items)
                     elif fonte == "G1":
-                        items = extrair_itens_g1(root)
-                        novas_total += _bulk_insert_news("G1", items)
+                        pass
+                        #items = extrair_itens_g1(root)
+                        #novas_total += _bulk_insert_news("G1", items)
 
             except ET.ParseError as e:
                 logger.exception("Erro parseando XML de %s: %s", fonte, e)
