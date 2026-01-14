@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'aplicativo',
     'corsheaders',
     'rolepermissions',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

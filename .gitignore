@@ -16,3 +16,4 @@ reset.sh
 docker_up.sh
 docker_down.sh
 docker_stop.sh
+schema.png
