@@ -1,4 +1,16 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sape
+      POSTGRES_USER: sape
+      POSTGRES_PASSWORD: sape
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
   web:
     build: .
     env_file:
@@ -7,13 +19,16 @@ services:
       - DJANGO_SETTINGS_MODULE=SAPE.settings.prod
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    command: gunicorn SAPE.wsgi:application --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 300
+      - DB_HOST=db
+    command: gunicorn SAPE.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 300
     volumes:
       - ./static:/app/static
       - media_volume:/app/media
-      - ./db.sqlite3:/app/db.sqlite3
     expose:
       - "8000"
+    depends_on:
+      - db
+      - redis
     restart: always
 
   redis:
@@ -28,12 +43,12 @@ services:
       - DJANGO_SETTINGS_MODULE=SAPE.settings.prod
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-    # SQLite => mantenha concorrência 1 para evitar lock
-    command: celery -A SAPE worker -l info --concurrency=1
+      - DB_HOST=db
+    command: celery -A SAPE worker -l info --concurrency=4
     volumes:
       - media_volume:/app/media
-      - ./db.sqlite3:/app/db.sqlite3
     depends_on:
+      - db
       - redis
     restart: always
 
@@ -45,8 +60,10 @@ services:
       - DJANGO_SETTINGS_MODULE=SAPE.settings.prod
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DB_HOST=db
     command: celery -A SAPE beat -l info
     depends_on:
+      - db
       - redis
     restart: always
 
@@ -64,3 +81,4 @@ services:
 
 volumes:
   media_volume:
+  pgdata:

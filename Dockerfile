@@ -5,7 +5,10 @@ FROM python:3.12-slim
 # Setando o diretório de trabalho
 WORKDIR /app
 
-# Instalando as dependências
+# Instalando dependências do sistema (libpq para psycopg/PostgreSQL)
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev && rm -rf /var/lib/apt/lists/*
+
+# Instalando as dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
