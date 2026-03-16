@@ -193,6 +193,56 @@ def classificar_noticia(titulo, noticia):
     return resp.choices[0].message.content
 ######
 
+### Indices Editoriais ###
+_RELEVANCE_KEYS = [
+    "agenda_corporativa", "agenda_publica", "agenda_politica",
+    "audiencia_alunos", "audiencia_pacientes", "audiencia_profissionais",
+    "midias_sociais",
+]
+
+@csrf_exempt
+@login_required
+@require_POST
+def salvar_indices_editoriais(request, id):
+    dashboard = get_object_or_404(Dashboard, id=id)
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"status": "error", "detail": "JSON inválido."}, status=400)
+
+    capacidade = data.get("capacidade_producao")
+    params = data.get("oe_relevance_params")
+
+    if capacidade is None or not isinstance(capacidade, int) or capacidade < 0:
+        return JsonResponse({"status": "error", "detail": "Capacidade de produção inválida."}, status=400)
+
+    if not isinstance(params, list) or len(params) != 25:
+        return JsonResponse({"status": "error", "detail": "Deve haver exatamente 25 OEs."}, status=400)
+
+    for i, p in enumerate(params):
+        if not isinstance(p, dict):
+            return JsonResponse({"status": "error", "detail": f"OE{i+1:02d} inválido."}, status=400)
+        for k in _RELEVANCE_KEYS:
+            v = p.get(k)
+            if not isinstance(v, int) or v < 0:
+                return JsonResponse({"status": "error", "detail": f"OE{i+1:02d}.{k} inválido."}, status=400)
+
+    dashboard.capacidade_producao = capacidade
+    dashboard.oe_relevance_params = params
+    dashboard.save(update_fields=["capacidade_producao", "oe_relevance_params"])
+
+    return JsonResponse({"status": "ok"})
+
+
+@login_required
+def obter_indices_editoriais(request, id):
+    dashboard = get_object_or_404(Dashboard, id=id)
+    return JsonResponse({
+        "capacidade_producao": dashboard.capacidade_producao,
+        "oe_relevance_params": dashboard.oe_relevance_params or [],
+    })
+
+
 ### Dashborad ###
 @csrf_exempt
 @login_required

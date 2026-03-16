@@ -165,6 +165,32 @@
           </div>
         </div>
 
+        <div id="indices-table-card" class="card mt-3" style="display:none;">
+          <div class="card-header bg-info">
+            <h3 class="card-title text-white">Indices de Desempenho Editorial</h3>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered table-striped mb-0" id="indices-table">
+                <thead class="thead-light">
+                  <tr>
+                    <th>OE</th>
+                    <th>FRJ-R Medio</th>
+                    <th>IRS Apurado</th>
+                    <th>FRJ Apurado</th>
+                    <th>IRS de Referencia</th>
+                    <th>IEC</th>
+                    <th>FRJ Apurado - IEC</th>
+                    <th>FRJ Referencia - IEC (M*I)</th>
+                  </tr>
+                </thead>
+                <tbody id="indices-table-body"></tbody>
+                <tfoot id="indices-table-foot"></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div id="news-list-card" class="card mt-3" style="display:none;">
           <div class="card-header">
             <h3 class="card-title" id="news-list-title">Notícias</h3>
@@ -224,6 +250,14 @@
                 </span>
                 <span class="btn-text">&nbsp;&nbsp;Gerar Indicadores com IA</span>
               </button>
+
+              <button onclick="abrirModalIndices()" id="btn-indices-editoriais"
+                      class="btn-sape btn-sape-ai" type="button">
+                <span class="btn-icon">
+                  <i class="fas fa-table" style="color:#fff;"></i>
+                </span>
+                <span class="btn-text">&nbsp;&nbsp;Indices Editoriais</span>
+              </button>
             </div>
 
           </div>
@@ -271,6 +305,13 @@
 {% url 'iniciar_atualizacao_dashboard' dashboard.id as iniciar_url %}
 
 <script>
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+
 function setLoading(btnId, isLoading, loadingText) {
   const btn = document.getElementById(btnId);
   if (!btn) return null;
@@ -430,6 +471,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 {{ dashboard.oe_count|default:"[]"|json_script:"oeCountData" }}
 {{ oe_news_map|default:"{}"|json_script:"oeNewsMapData" }}
+{{ dashboard.capacidade_producao|json_script:"capacidadeProducaoData" }}
+{{ dashboard.oe_relevance_params|default:"[]"|json_script:"oeRelevanceParamsData" }}
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -742,6 +785,219 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+
+/* ========== Indices Editoriais ========== */
+var IE_KEYS = [
+  {key:'agenda_corporativa',  label:'Ag. Corporativa'},
+  {key:'agenda_publica',      label:'Ag. Publica'},
+  {key:'agenda_politica',     label:'Ag. Politica'},
+  {key:'audiencia_alunos',    label:'Aud. Alunos'},
+  {key:'audiencia_pacientes', label:'Aud. Pacientes'},
+  {key:'audiencia_profissionais', label:'Aud. Profissionais'},
+  {key:'midias_sociais',      label:'Midias Sociais'}
+];
+
+function ensureModalIndicesEditoriais() {
+  if (document.getElementById('modalIndicesEditoriais')) return;
+
+  var headerCols = '<th style="min-width:60px;">OE</th>';
+  IE_KEYS.forEach(function(k) {
+    headerCols += '<th style="min-width:100px;">' + k.label + '</th>';
+  });
+
+  var bodyRows = '';
+  for (var i = 0; i < 25; i++) {
+    var oe = 'OE' + String(i+1).padStart(2,'0');
+    var cells = '<td><strong>' + oe + '</strong></td>';
+    IE_KEYS.forEach(function(k) {
+      cells += '<td><input type="number" min="0" step="1" class="form-control form-control-sm" id="ie_' + i + '_' + k.key + '" value="0" style="width:80px;"></td>';
+    });
+    bodyRows += '<tr>' + cells + '</tr>';
+  }
+
+  var html = `
+  <div class="modal fade" id="modalIndicesEditoriais" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <h5 class="modal-title text-white">Indices Editoriais - Parametros de Relevancia</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fechar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group row align-items-center mb-3">
+            <label for="ie_capacidade" class="col-sm-4 col-form-label font-weight-bold">Capacidade de Producao</label>
+            <div class="col-sm-4">
+              <input type="number" min="0" step="1" class="form-control" id="ie_capacidade" value="0">
+            </div>
+          </div>
+          <hr>
+          <div class="table-responsive" style="max-height:500px; overflow:auto;">
+            <table class="table table-sm table-bordered mb-0">
+              <thead class="thead-light" style="position:sticky;top:0;z-index:1;">
+                <tr>${headerCols}</tr>
+              </thead>
+              <tbody>${bodyRows}</tbody>
+            </table>
+          </div>
+          <div id="ie_alert" class="alert alert-danger d-none mt-2 mb-0" role="alert"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button id="ie_salvar" type="button" class="btn btn-primary">
+            <i class="fas fa-save mr-1"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  document.getElementById('ie_salvar').addEventListener('click', async function() {
+    var alertBox = document.getElementById('ie_alert');
+    alertBox.classList.add('d-none');
+
+    var capacidade = parseInt(document.getElementById('ie_capacidade').value, 10);
+    if (isNaN(capacidade) || capacidade < 0) {
+      alertBox.textContent = 'Capacidade de producao invalida.';
+      alertBox.classList.remove('d-none');
+      return;
+    }
+
+    var params = [];
+    for (var i = 0; i < 25; i++) {
+      var obj = {};
+      for (var j = 0; j < IE_KEYS.length; j++) {
+        var k = IE_KEYS[j].key;
+        var v = parseInt(document.getElementById('ie_' + i + '_' + k).value, 10);
+        if (isNaN(v) || v < 0) {
+          alertBox.textContent = 'OE' + String(i+1).padStart(2,'0') + ' - ' + IE_KEYS[j].label + ': valor invalido.';
+          alertBox.classList.remove('d-none');
+          return;
+        }
+        obj[k] = v;
+      }
+      params.push(obj);
+    }
+
+    var btn = document.getElementById('ie_salvar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...';
+
+    try {
+      var csrfToken = getCookie('csrftoken') || '{{ csrf_token }}';
+      var resp = await fetch('/dashboard/{{ dashboard.id }}/indices-editoriais/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ capacidade_producao: capacidade, oe_relevance_params: params })
+      });
+      var data = await resp.json();
+      if (resp.ok && data.status === 'ok') {
+        $('#modalIndicesEditoriais').modal('hide');
+        location.reload();
+      } else {
+        alertBox.textContent = data.detail || 'Erro ao salvar.';
+        alertBox.classList.remove('d-none');
+      }
+    } catch(e) {
+      alertBox.textContent = 'Erro na requisicao.';
+      alertBox.classList.remove('d-none');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save mr-1"></i> Salvar';
+    }
+  });
+}
+
+function abrirModalIndices() {
+  ensureModalIndicesEditoriais();
+
+  fetch('/dashboard/{{ dashboard.id }}/indices-editoriais/get/')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('ie_capacidade').value = data.capacidade_producao || 0;
+      var params = data.oe_relevance_params || [];
+      for (var i = 0; i < 25; i++) {
+        var p = params[i] || {};
+        IE_KEYS.forEach(function(k) {
+          var input = document.getElementById('ie_' + i + '_' + k.key);
+          if (input) input.value = p[k.key] || 0;
+        });
+      }
+    });
+
+  $('#modalIndicesEditoriais').modal('show');
+}
+
+/* ========== Calcular e Exibir Tabela de Indices ========== */
+(function() {
+  var capacidade = 0;
+  try { capacidade = JSON.parse(document.getElementById('capacidadeProducaoData').textContent || '0'); } catch(e) {}
+  var params = [];
+  try { params = JSON.parse(document.getElementById('oeRelevanceParamsData').textContent || '[]'); } catch(e) {}
+
+  if (!capacidade || !params.length) return;
+
+  var N = 25;
+  var KEYS = IE_KEYS.map(function(k) { return k.key; });
+
+  var executado = baseCounts.reduce(function(a, b) { return a + b; }, 0);
+  var iProd = capacidade / N;
+
+  var frjRMedio = [];
+  for (var i = 0; i < N; i++) {
+    var p = params[i] || {};
+    var vals = KEYS.map(function(k) { return Number(p[k]) || 0; });
+    var nonZero = vals.filter(function(v) { return v > 0; });
+    frjRMedio.push(nonZero.length > 0 ? nonZero.reduce(function(a, b) { return a + b; }, 0) / nonZero.length : 0);
+  }
+
+  var sumFrjRMedio = frjRMedio.reduce(function(a, b) { return a + b; }, 0);
+  if (sumFrjRMedio === 0) return;
+
+  var iProdIEC = executado / N;
+
+  var tbody = document.getElementById('indices-table-body');
+  var tfoot = document.getElementById('indices-table-foot');
+  if (!tbody || !tfoot) return;
+
+  tbody.innerHTML = '';
+
+  for (var i = 0; i < N; i++) {
+    var irsApurado = baseCounts[i];
+    var frjApurado = iProd > 0 ? (irsApurado * sumFrjRMedio) / (iProd * N) : 0;
+    var irsReferencia = (iProd * frjRMedio[i] / sumFrjRMedio) * N;
+    var iec = irsReferencia > 0 ? irsApurado / irsReferencia : 0;
+    var frjApuradoIEC = (iProdIEC * frjRMedio[i] / sumFrjRMedio) * N;
+    var frjReferenciaIEC = iProdIEC > 0 ? (irsApurado * sumFrjRMedio) / (iProdIEC * N) : 0;
+
+    var oe = 'OE' + String(i + 1).padStart(2, '0');
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><strong>' + oe + '</strong></td>' +
+      '<td>' + frjRMedio[i].toFixed(2) + '</td>' +
+      '<td>' + irsApurado + '</td>' +
+      '<td>' + frjApurado.toFixed(2) + '</td>' +
+      '<td>' + irsReferencia.toFixed(2) + '</td>' +
+      '<td>' + iec.toFixed(2) + '</td>' +
+      '<td>' + frjApuradoIEC.toFixed(2) + '</td>' +
+      '<td>' + frjReferenciaIEC.toFixed(2) + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  tfoot.innerHTML =
+    '<tr class="font-weight-bold" style="background:#e9ecef;">' +
+    '<td>TOTAIS</td>' +
+    '<td>' + sumFrjRMedio.toFixed(2) + '</td>' +
+    '<td>' + executado + '</td>' +
+    '<td>IProd: ' + iProd.toFixed(2) + '</td>' +
+    '<td>IProd IEC: ' + iProdIEC.toFixed(2) + '</td>' +
+    '<td colspan="3">Cap. Prod.: ' + capacidade + '</td>' +
+    '</tr>';
+
+  document.getElementById('indices-table-card').style.display = 'block';
+})();
 </script>
 
 </body>

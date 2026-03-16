@@ -42,6 +42,8 @@ urlpatterns = [
     path('monitoramento/', pagina_monitoramento, name='dashboards'),
     path("dashboard/<int:id>/iniciar/", iniciar_atualizacao_dashboard, name="iniciar_atualizacao_dashboard"),
     path("task/<str:task_id>/status/", status_task, name="status_task"),
+    path("dashboard/<int:id>/indices-editoriais/", salvar_indices_editoriais, name="salvar_indices_editoriais"),
+    path("dashboard/<int:id>/indices-editoriais/get/", obter_indices_editoriais, name="obter_indices_editoriais"),
 
     # Doacao
     path('cadastrar_doacao_request/', cadastrar_doacao_request, name='cadastrar_doacao_request'),

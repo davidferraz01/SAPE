@@ -25,3 +25,5 @@ class Dashboard(models.Model):
     final_date = models.DateField()
     oe_news_map = models.JSONField(default=dict, blank=True)
     sources = models.JSONField(default=list, blank=True)
+    capacidade_producao = models.IntegerField(default=0, blank=True)
+    oe_relevance_params = models.JSONField(default=list, blank=True)
