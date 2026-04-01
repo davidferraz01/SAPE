@@ -165,32 +165,6 @@
           </div>
         </div>
 
-        <div id="indices-table-card" class="card mt-3" style="display:none;">
-          <div class="card-header bg-info">
-            <h3 class="card-title text-white">Indices de Desempenho Editorial</h3>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-sm table-bordered table-striped mb-0" id="indices-table">
-                <thead class="thead-light">
-                  <tr>
-                    <th>OE</th>
-                    <th>FRJ-R Medio</th>
-                    <th>IRS Apurado</th>
-                    <th>FRJ Apurado</th>
-                    <th>IRS de Referencia</th>
-                    <th>IEC</th>
-                    <th>FRJ Apurado - IEC</th>
-                    <th>FRJ Referencia - IEC (M*I)</th>
-                  </tr>
-                </thead>
-                <tbody id="indices-table-body"></tbody>
-                <tfoot id="indices-table-foot"></tfoot>
-              </table>
-            </div>
-          </div>
-        </div>
-
         <div id="news-list-card" class="card mt-3" style="display:none;">
           <div class="card-header">
             <h3 class="card-title" id="news-list-title">Notícias</h3>
@@ -210,6 +184,26 @@
                 </thead>
                 <tbody id="news-list-body"></tbody>
               </table>
+            </div>
+
+            <div id="indices-oe-card" class="mt-3" style="display:none;">
+              <h5 class="text-info font-weight-bold" id="indices-oe-title">Índices Editoriais</h5>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped mb-0">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>FRJ-R Medio</th>
+                      <th>IRS Apurado</th>
+                      <th>FRJ Apurado</th>
+                      <th>IRS de Referencia</th>
+                      <th>IEC</th>
+                      <th>FRJ Apurado - IEC</th>
+                      <th>FRJ Referencia - IEC (M*I)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="indices-oe-body"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -617,22 +611,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!lista.length) {
       empty.style.display = 'block';
-      card.style.display = 'block';
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
+    } else {
+      empty.style.display = 'none';
+      lista.forEach(function (noticia, idx) {
+        var url = '/visualizar_noticia/' + (noticia.id || '') + '/';
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (idx + 1) + '</td>' +
+          '<td>' + (noticia.source || '') + '</td>' +
+          '<td><a href="' + url + '">' + (noticia.title || '') + '</a></td>';
+        tbody.appendChild(tr);
+      });
     }
 
-    empty.style.display = 'none';
-
-    lista.forEach(function (noticia, idx) {
-      var url = '/visualizar_noticia/' + (noticia.id || '') + '/';
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + (idx + 1) + '</td>' +
-        '<td>' + (noticia.source || '') + '</td>' +
-        '<td><a href="' + url + '">' + (noticia.title || '') + '</a></td>';
-      tbody.appendChild(tr);
-    });
+    /* Exibir Indices Editoriais do OE clicado */
+    var indicesCard = document.getElementById('indices-oe-card');
+    var indicesTitle = document.getElementById('indices-oe-title');
+    var indicesBody = document.getElementById('indices-oe-body');
+    if (indicesCard && indicesBody && indicesData && indicesData.hasParams) {
+      var d = indicesData.rows[oeLabel];
+      if (d) {
+        indicesTitle.textContent = 'Índices Editoriais:';
+        indicesBody.innerHTML =
+          '<tr>' +
+          '<td>' + d.frjRMedio.toFixed(2) + '</td>' +
+          '<td>' + d.irsApurado + '</td>' +
+          '<td>' + d.frjApurado.toFixed(2) + '</td>' +
+          '<td>' + d.irsReferencia.toFixed(2) + '</td>' +
+          '<td>' + d.iec.toFixed(2) + '</td>' +
+          '<td>' + d.frjApuradoIEC.toFixed(2) + '</td>' +
+          '<td>' + d.frjReferenciaIEC.toFixed(2) + '</td>' +
+          '</tr>';
+        indicesCard.style.display = 'block';
+      } else {
+        indicesCard.style.display = 'none';
+      }
+    } else if (indicesCard) {
+      indicesCard.style.display = 'none';
+    }
 
     card.style.display = 'block';
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -784,6 +800,54 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
+
+  /* ========== Pré-calcular Indices Editoriais por OE ========== */
+  var indicesData = (function() {
+    var capacidade = 0;
+    try { capacidade = JSON.parse(document.getElementById('capacidadeProducaoData').textContent || '0'); } catch(e) {}
+    var params = [];
+    try { params = JSON.parse(document.getElementById('oeRelevanceParamsData').textContent || '[]'); } catch(e) {}
+
+    var N = 25;
+    var KEYS = IE_KEYS.map(function(k) { return k.key; });
+
+    var executado = baseCounts.reduce(function(a, b) { return a + b; }, 0);
+    var iProd = capacidade / N;
+
+    var frjRMedio = [];
+    for (var i = 0; i < N; i++) {
+      var p = params[i] || {};
+      var vals = KEYS.map(function(k) { return Number(p[k]) || 0; });
+      var nonZero = vals.filter(function(v) { return v > 0; });
+      frjRMedio.push(nonZero.length > 0 ? nonZero.reduce(function(a, b) { return a + b; }, 0) / nonZero.length : 0);
+    }
+
+    var sumFrjRMedio = frjRMedio.reduce(function(a, b) { return a + b; }, 0);
+    var iProdIEC = executado / N;
+
+    var rows = {};
+    for (var i = 0; i < N; i++) {
+      var oe = 'OE' + String(i + 1).padStart(2, '0');
+      var irsApurado = baseCounts[i];
+      var frjApurado = (iProd > 0 && sumFrjRMedio > 0) ? (irsApurado * sumFrjRMedio) / (iProd * N) : 0;
+      var irsReferencia = sumFrjRMedio > 0 ? (iProd * frjRMedio[i] / sumFrjRMedio) * N : 0;
+      var iec = irsReferencia > 0 ? irsApurado / irsReferencia : 0;
+      var frjApuradoIEC = sumFrjRMedio > 0 ? (iProdIEC * frjRMedio[i] / sumFrjRMedio) * N : 0;
+      var frjReferenciaIEC = (iProdIEC > 0 && sumFrjRMedio > 0) ? (irsApurado * sumFrjRMedio) / (iProdIEC * N) : 0;
+
+      rows[oe] = {
+        frjRMedio: frjRMedio[i],
+        irsApurado: irsApurado,
+        frjApurado: frjApurado,
+        irsReferencia: irsReferencia,
+        iec: iec,
+        frjApuradoIEC: frjApuradoIEC,
+        frjReferenciaIEC: frjReferenciaIEC
+      };
+    }
+
+    return { rows: rows, hasParams: params.length > 0 && capacidade > 0 };
+  })();
 });
 
 /* ========== Indices Editoriais ========== */
@@ -810,7 +874,7 @@ function ensureModalIndicesEditoriais() {
     var oe = 'OE' + String(i+1).padStart(2,'0');
     var cells = '<td><strong>' + oe + '</strong></td>';
     IE_KEYS.forEach(function(k) {
-      cells += '<td><input type="number" min="0" step="1" class="form-control form-control-sm" id="ie_' + i + '_' + k.key + '" value="0" style="width:80px;"></td>';
+      cells += '<td><input type="text" inputmode="numeric" class="form-control form-control-sm" id="ie_' + i + '_' + k.key + '" value="0" style="width:80px;"></td>';
     });
     bodyRows += '<tr>' + cells + '</tr>';
   }
@@ -829,7 +893,7 @@ function ensureModalIndicesEditoriais() {
           <div class="form-group row align-items-center mb-3">
             <label for="ie_capacidade" class="col-sm-4 col-form-label font-weight-bold">Capacidade de Producao</label>
             <div class="col-sm-4">
-              <input type="number" min="0" step="1" class="form-control" id="ie_capacidade" value="0">
+              <input type="text" inputmode="numeric" class="form-control" id="ie_capacidade" value="0">
             </div>
           </div>
           <hr>
@@ -930,74 +994,7 @@ function abrirModalIndices() {
   $('#modalIndicesEditoriais').modal('show');
 }
 
-/* ========== Calcular e Exibir Tabela de Indices ========== */
-(function() {
-  var capacidade = 0;
-  try { capacidade = JSON.parse(document.getElementById('capacidadeProducaoData').textContent || '0'); } catch(e) {}
-  var params = [];
-  try { params = JSON.parse(document.getElementById('oeRelevanceParamsData').textContent || '[]'); } catch(e) {}
 
-  if (!capacidade || !params.length) return;
-
-  var N = 25;
-  var KEYS = IE_KEYS.map(function(k) { return k.key; });
-
-  var executado = baseCounts.reduce(function(a, b) { return a + b; }, 0);
-  var iProd = capacidade / N;
-
-  var frjRMedio = [];
-  for (var i = 0; i < N; i++) {
-    var p = params[i] || {};
-    var vals = KEYS.map(function(k) { return Number(p[k]) || 0; });
-    var nonZero = vals.filter(function(v) { return v > 0; });
-    frjRMedio.push(nonZero.length > 0 ? nonZero.reduce(function(a, b) { return a + b; }, 0) / nonZero.length : 0);
-  }
-
-  var sumFrjRMedio = frjRMedio.reduce(function(a, b) { return a + b; }, 0);
-  if (sumFrjRMedio === 0) return;
-
-  var iProdIEC = executado / N;
-
-  var tbody = document.getElementById('indices-table-body');
-  var tfoot = document.getElementById('indices-table-foot');
-  if (!tbody || !tfoot) return;
-
-  tbody.innerHTML = '';
-
-  for (var i = 0; i < N; i++) {
-    var irsApurado = baseCounts[i];
-    var frjApurado = iProd > 0 ? (irsApurado * sumFrjRMedio) / (iProd * N) : 0;
-    var irsReferencia = (iProd * frjRMedio[i] / sumFrjRMedio) * N;
-    var iec = irsReferencia > 0 ? irsApurado / irsReferencia : 0;
-    var frjApuradoIEC = (iProdIEC * frjRMedio[i] / sumFrjRMedio) * N;
-    var frjReferenciaIEC = iProdIEC > 0 ? (irsApurado * sumFrjRMedio) / (iProdIEC * N) : 0;
-
-    var oe = 'OE' + String(i + 1).padStart(2, '0');
-    var tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td><strong>' + oe + '</strong></td>' +
-      '<td>' + frjRMedio[i].toFixed(2) + '</td>' +
-      '<td>' + irsApurado + '</td>' +
-      '<td>' + frjApurado.toFixed(2) + '</td>' +
-      '<td>' + irsReferencia.toFixed(2) + '</td>' +
-      '<td>' + iec.toFixed(2) + '</td>' +
-      '<td>' + frjApuradoIEC.toFixed(2) + '</td>' +
-      '<td>' + frjReferenciaIEC.toFixed(2) + '</td>';
-    tbody.appendChild(tr);
-  }
-
-  tfoot.innerHTML =
-    '<tr class="font-weight-bold" style="background:#e9ecef;">' +
-    '<td>TOTAIS</td>' +
-    '<td>' + sumFrjRMedio.toFixed(2) + '</td>' +
-    '<td>' + executado + '</td>' +
-    '<td>IProd: ' + iProd.toFixed(2) + '</td>' +
-    '<td>IProd IEC: ' + iProdIEC.toFixed(2) + '</td>' +
-    '<td colspan="3">Cap. Prod.: ' + capacidade + '</td>' +
-    '</tr>';
-
-  document.getElementById('indices-table-card').style.display = 'block';
-})();
 </script>
 
 </body>
