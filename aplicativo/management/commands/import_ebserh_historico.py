@@ -18,7 +18,7 @@ from ...models import News  # ajuste se necessário (ex: from app.models import 
 
 logger = logging.getLogger(__name__)
 
-BASE_LIST_URL = "https://www.gov.br/ebserh/pt-br/comunicacao/noticias"
+BASE_LIST_URL = "https://www.gov.br/hubrasil/pt-br/comunicacao/noticias"
 
 DEFAULT_IMPORTANT_WORDS = "A Nuvem de Palavras ainda não foi gerada."
 DEFAULT_CLASSIFICATION = {
@@ -276,8 +276,8 @@ def extract_list_items(html: str) -> list[EbserhListItem]:
 
         link = urljoin(BASE_LIST_URL + "/", href)
 
-        # mantém somente URLs de notícias do caminho esperado
-        if "/ebserh/pt-br/comunicacao/noticias/" not in link:
+        # mantém somente URLs de notícias do caminho esperado (ebserh ou hubrasil)
+        if "/ebserh/pt-br/comunicacao/noticias/" not in link and "/hubrasil/pt-br/comunicacao/noticias/" not in link:
             continue
         # descarta links de paginação/listagem
         if "b_start:int=" in link or "b_start%3Aint" in link:

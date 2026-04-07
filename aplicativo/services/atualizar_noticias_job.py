@@ -468,7 +468,7 @@ def atualizar_noticias_job() -> int:
     fontes = {
         "G1": "https://g1.globo.com/rss/g1/",
         "UOL": "https://rss.uol.com.br/feed/noticias.xml",
-        "EBSERH": "https://www.gov.br/ebserh/pt-br/site-feed/RSS",
+        "EBSERH": "https://www.gov.br/hubrasil/pt-br/site-feed/RSS",
     }
 
     headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"}
