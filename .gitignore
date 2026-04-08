@@ -7,11 +7,5 @@ SAPE/settings/__pycache__/
 SAPE/__pycache__/
 aplicativo/services/__pycache__/
 db.sqlite3
-start.sh
-run.sh
-reset.sh
 .env
-docker_up.sh
-docker_down.sh
-docker_stop.sh
 schema.png
